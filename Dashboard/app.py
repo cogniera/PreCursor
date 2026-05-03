@@ -623,7 +623,7 @@ if "Insider" in page:
         fig.add_trace(
             go.Scatter(
                 x=spy_price["date"],
-                y=spy_price["return_1d"] * 100,
+                y=((1 + spy_price["return_1d"].fillna(0)).cumprod() - 1) * 100,
                 name="S&P 500",
                 line=dict(color="white", width=2),
                 hovertemplate="%{x|%b %d %Y}<br>S&P 500 Return: %{y:.1f}%<extra></extra>",
@@ -669,7 +669,7 @@ if "Insider" in page:
                 tickfont=dict(size=11),
             ),
             yaxis2=dict(
-                title="S&P 500 Return %",
+                title="S&P 500 Cumulative Return %",
                 title_font=dict(color="white", size=11),
                 tickfont=dict(size=11),
                 gridcolor=C["border"],
@@ -1368,41 +1368,41 @@ elif "Explorer" in page:
             st.plotly_chart(fig_macd, use_container_width=True)
 
     # ── Prediction history table ──────────────────────────────
-    section_header(
-        f"Prediction History - {selected_ticker}",
-        f"Last 90 {model_key.upper()} predictions"
-    )
-
-    if not preds.empty:
-        preds_display = preds[[
-            "date", "model", "horizon",
-            "prediction", "probability", "confidence", "correct"
-        ]].copy()
-        preds_display["probability"] = (
-            preds_display["probability"] * 100
-        ).round(1).astype(str) + "%"
-        preds_display["confidence"] = (
-            preds_display["confidence"] * 100
-        ).round(1).astype(str) + "%"
-        preds_display["prediction"] = preds_display["prediction"].map(
-            {1: "↑ UP", 0: "↓ DOWN"}
-        )
-        preds_display["correct"] = preds_display["correct"].map(
-            {1: "✅", 0: "❌", None: "-"}
-        )
-        preds_display.columns = [
-            "Date", "Model", "Horizon",
-            "Direction", "Probability", "Confidence", "Correct?"
-        ]
-        st.dataframe(preds_display, use_container_width=True, hide_index=True)
-
-        # Recent accuracy
-        valid = preds[preds["correct"].notna()]
-        if not valid.empty:
-            recent_acc = valid["correct"].mean() * 100
-            st.caption(
-                f"Recent accuracy ({len(valid)} predictions): {recent_acc:.1f}%"
-            )
+    if model_key == "xgboost":
+      section_header(
+          f"Prediction History — {selected_ticker}",
+          f"Last 90 {model_key.upper()} predictions"
+      )
+  
+      if not preds.empty:
+          preds_display = preds[[
+              "date", "model", "horizon",
+              "prediction", "probability", "confidence", "correct"
+          ]].copy()
+          preds_display["probability"] = (
+              preds_display["probability"] * 100
+          ).round(1).astype(str) + "%"
+          preds_display["confidence"] = (
+              preds_display["confidence"] * 100
+          ).round(1).astype(str) + "%"
+          preds_display["prediction"] = preds_display["prediction"].map(
+              {1: "↑ UP", 0: "↓ DOWN"}
+          )
+          preds_display["correct"] = preds_display["correct"].map(
+              {1: "✅", 0: "❌", None: "-"}
+          )
+          preds_display.columns = [
+              "Date", "Model", "Horizon",
+              "Direction", "Probability", "Confidence", "Correct?"
+          ]
+          st.dataframe(preds_display, use_container_width=True, hide_index=True)
+  
+          valid = preds[preds["correct"].notna()]
+          if not valid.empty:
+              recent_acc = valid["correct"].mean() * 100
+              st.caption(
+                  f"Recent accuracy ({len(valid)} predictions): {recent_acc:.1f}%"
+              )
 
 
 # ══════════════════════════════════════════════════════════════

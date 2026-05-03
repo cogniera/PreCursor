@@ -26,62 +26,10 @@ from typing import Optional
 import requests
 import time
 
-# __ Debugging ____________
-
-st.write("Step 1 — app started")
-st.write(f"Token length: {len(st.secrets['DATABRICKS_TOKEN'])}")
-
-token = st.secrets["DATABRICKS_TOKEN"]
-hostname = "dbc-b7ee8514-f214.cloud.databricks.com"
-warehouse_id = "189351f1633e6859"
-
-# Step 1 — start the warehouse
-st.write("Step 2 — starting warehouse...")
-start_response = requests.post(
-    f"https://{hostname}/api/2.0/sql/warehouses/{warehouse_id}/start",
-    headers={"Authorization": f"Bearer {token}"}
-)
-st.write(f"Start response: {start_response.status_code}")
-
-# Step 2 — wait 60 seconds for warehouse to wake up
-st.write("Step 3 — waiting 60 seconds for warehouse to start...")
-progress = st.progress(0)
-for i in range(60):
-    time.sleep(1)
-    progress.progress((i + 1) / 60)
-st.write("Step 3 — done waiting")
-
-# Step 3 — check warehouse state
-st.write("Step 4 — checking warehouse state...")
-state_response = requests.get(
-    f"https://{hostname}/api/2.0/sql/warehouses/{warehouse_id}",
-    headers={"Authorization": f"Bearer {token}"}
-)
-state = state_response.json().get("state", "unknown")
-st.write(f"Warehouse state: {state}")
-
-# Step 4 — try SQL connector
-st.write("Step 5 — connecting via SQL connector...")
-try:
-    with sql.connect(
-        server_hostname=hostname,
-        http_path=f"/sql/1.0/warehouses/{warehouse_id}",
-        access_token=token,
-        _retry_stop_after_attempts_count=3,
-        _retry_delay_min=5,
-        _retry_delay_max=15,
-    ) as connection:
-        with connection.cursor() as cursor:
-            cursor.execute("SELECT 1 AS test")
-            result = cursor.fetchall()
-        st.success(f"✅ Connected — {result}")
-except Exception as e:
-    st.error(f"❌ Failed: {e}")
-
 # ── Page config ───────────────────────────────────────────────
 
 st.set_page_config(
-    page_title="Precursor — Market Intelligence",
+    page_title="Precursor Market Intelligence",
     page_icon="📈",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -198,25 +146,49 @@ PLOTLY_BASE = dict(
 
 # ── Database connection ───────────────────────────────────────
 
-@st.cache_resource
-def get_db():
-    """Open and cache a Databricks SQL connection."""
-    return sql.connect(
-        server_hostname="dbc-b7ee8514-f214.cloud.databricks.com",
-        http_path="/sql/1.0/warehouses/189351f1633e6859",
-        access_token=st.secrets["DATABRICKS_TOKEN"],
+HOSTNAME     = "dbc-b7ee8514-f214.cloud.databricks.com"
+WAREHOUSE_ID = "189351f1633e6859"
+HTTP_PATH    = f"/sql/1.0/warehouses/{WAREHOUSE_ID}"
+
+def ensure_warehouse_running() -> None:
+    token   = st.secrets["DATABRICKS_TOKEN"]
+    headers = {"Authorization": f"Bearer {token}"}
+    state   = requests.get(
+        f"https://{HOSTNAME}/api/2.0/sql/warehouses/{WAREHOUSE_ID}",
+        headers=headers,
+    ).json().get("state", "UNKNOWN")
+    if state == "RUNNING":
+        return
+    requests.post(
+        f"https://{HOSTNAME}/api/2.0/sql/warehouses/{WAREHOUSE_ID}/start",
+        headers=headers,
     )
+    for _ in range(90):
+        time.sleep(1)
+        state = requests.get(
+            f"https://{HOSTNAME}/api/2.0/sql/warehouses/{WAREHOUSE_ID}",
+            headers=headers,
+        ).json().get("state", "UNKNOWN")
+        if state == "RUNNING":
+            return
 
-
+@st.cache_data(ttl=3600)
 def run_query(sql_str: str) -> pd.DataFrame:
-    """Execute SQL and return a pandas DataFrame."""
     try:
-        conn = get_db()
-        with conn.cursor() as cursor:
-            cursor.execute(sql_str)
-            rows = cursor.fetchall()
-            cols = [d[0] for d in cursor.description]
-            return pd.DataFrame(rows, columns=cols)
+        ensure_warehouse_running()
+        with sql.connect(
+            server_hostname=HOSTNAME,
+            http_path=HTTP_PATH,
+            access_token=st.secrets["DATABRICKS_TOKEN"],
+            _retry_stop_after_attempts_count=3,
+            _retry_delay_min=5,
+            _retry_delay_max=15,
+        ) as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(sql_str)
+                rows = cursor.fetchall()
+                cols = [d[0] for d in cursor.description]
+                return pd.DataFrame(rows, columns=cols)
     except Exception as exc:
         st.error(f"Query failed: {exc}")
         return pd.DataFrame()

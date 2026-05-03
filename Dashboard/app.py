@@ -516,7 +516,7 @@ with st.sidebar:
     # Data freshness
     freshness = load_data_freshness()
     if freshness:
-        age_hrs = (datetime.utcnow() - freshness).total_seconds() / 3600
+        age_hrs = (datetime.now(freshness.tzinfo) - freshness).total_seconds() / 3600
         color   = C["green"] if age_hrs < 24 else C["red"]
         label   = freshness.strftime("%b %d %H:%M UTC")
         st.html(f"""

@@ -1207,6 +1207,12 @@ elif "Explorer" in page:
             selected_ticker, model_key, start_str, end_str
         )
 
+    # Strip timezone from both to allow merging
+    if not ohlcv.empty:
+        ohlcv["date"] = pd.to_datetime(ohlcv["date"]).dt.tz_localize(None)
+    if not preds.empty:
+        preds["date"] = pd.to_datetime(preds["date"]).dt.tz_localize(None)
+
     if not ohlcv.empty:
         ohlcv["date"] = pd.to_datetime(ohlcv["date"])
 

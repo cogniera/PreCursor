@@ -1,5 +1,5 @@
 """
-Precursor — Market Signal Intelligence
+Precursor - Market Signal Intelligence
 =======================================
 Financial ML dashboard tracking insider trades,
 macro signals, and model predictions across S&P 500.
@@ -38,12 +38,13 @@ st.set_page_config(
 # ── Global CSS ────────────────────────────────────────────────
 
 st.html("""
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   html, body, [class*="css"] {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     background-color: #080c14;
     color: #e2e8f0;
+    font-size: 15px;
   }
   .main { background-color: #080c14; }
   .block-container {
@@ -64,15 +65,15 @@ st.html("""
     padding: 18px 20px;
   }
   div[data-testid="metric-container"] label {
-    font-family: 'DM Mono', monospace !important;
-    font-size: 10px !important;
+    font-family: 'IBM Plex Mono', monospace !important;
+    font-size: 12px !important;
     color: #4a6080 !important;
     text-transform: uppercase;
     letter-spacing: 1.5px;
   }
   div[data-testid="stMetricValue"] {
-    font-family: 'Syne', sans-serif !important;
-    font-size: 30px !important;
+    font-family: 'Outfit', sans-serif !important;
+    font-size: 34px !important;
     font-weight: 700 !important;
     color: #00d4ff !important;
   }
@@ -86,16 +87,16 @@ st.html("""
   hr { border-color: #1a2744 !important; margin: 28px 0 !important; }
 
   .stSelectbox label, .stRadio label {
-    font-family: 'DM Mono', monospace !important;
-    font-size: 11px !important;
+    font-family: 'IBM Plex Mono', monospace !important;
+    font-size: 12px !important;
     color: #4a6080 !important;
     text-transform: uppercase;
     letter-spacing: 1px;
   }
 
   div[role="radiogroup"] label {
-    font-family: 'DM Mono', monospace !important;
-    font-size: 13px !important;
+    font-family: 'IBM Plex Mono', monospace !important;
+    font-size: 14px !important;
     color: #94a3b8 !important;
     padding: 8px 12px !important;
     border-radius: 6px !important;
@@ -125,7 +126,7 @@ C = {
 PLOTLY_BASE = dict(
     paper_bgcolor=C["bg"],
     plot_bgcolor=C["card"],
-    font=dict(color=C["text"], family="DM Mono"),
+    font=dict(color=C["text"], family="IBM Plex Mono"),
     margin=dict(t=60, b=40, l=50, r=30),
     xaxis=dict(gridcolor="#1a2744", showgrid=True,
                zeroline=False, tickfont=dict(size=11)),
@@ -140,7 +141,7 @@ PLOTLY_BASE = dict(
     hoverlabel=dict(
         bgcolor=C["card"],
         bordercolor=C["border"],
-        font=dict(family="DM Mono", size=12),
+        font=dict(family="IBM Plex Mono", size=12),
     ),
 )
 
@@ -209,7 +210,7 @@ def load_insider_monthly() -> pd.DataFrame:
 @st.cache_data(ttl=3600)
 def load_spy_price() -> pd.DataFrame:
     return run_query("""
-        SELECT date, close
+        SELECT date, return_1d
         FROM precursor.gold.features
         WHERE ticker = 'SPY'
         ORDER BY date
@@ -354,19 +355,19 @@ def load_data_freshness() -> Optional[datetime]:
 
 def section_header(title: str, subtitle: str = "") -> None:
     sub_html = (
-        f'<div style="font-size:13px;color:{C["subtext"]};'
-        f'margin-top:5px;font-family:DM Mono;">{subtitle}</div>'
+        f'<div style="font-size:15px;color:{C["subtext"]};'
+        f'margin-top:5px;font-family:IBM Plex Mono;">{subtitle}</div>'
         if subtitle else ""
     )
     st.html(f"""
     <div style="margin:36px 0 20px 0;
                 padding-bottom:14px;
                 border-bottom:1px solid {C['border']};">
-      <div style="font-family:Syne,sans-serif;
-                  font-size:20px;
+      <div style="font-family:Outfit,sans-serif;
+                  font-size:24px;
                   font-weight:700;
                   color:{C['text']};
-                  letter-spacing:-0.3px;">
+                  letter-spacing:-0.5px;">
         {title}
       </div>
       {sub_html}
@@ -381,10 +382,10 @@ def insight_card(text: str, color: str = "#00d4ff") -> None:
                 border-radius:0 8px 8px 0;
                 padding:16px 20px;
                 margin:16px 0;
-                font-size:13px;
+                font-size:15px;
                 color:{C['subtext']};
-                font-family:DM Mono;
-                line-height:1.7;">
+                font-family:IBM Plex Mono;
+                line-height:1.8;">
       {text}
     </div>
     """ )
@@ -398,19 +399,19 @@ def stat_card(value: str, label: str,
                 border-radius:12px;
                 padding:24px 20px;
                 text-align:center;">
-      <div style="font-family:Syne,sans-serif;
-                  font-size:38px;
+      <div style="font-family:Outfit,sans-serif;
+                  font-size:44px;
                   font-weight:800;
                   color:{color};
                   line-height:1;">
         {value}
       </div>
-      <div style="font-size:10px;
+      <div style="font-size:12px;
                   color:{C['muted']};
                   margin-top:10px;
                   text-transform:uppercase;
                   letter-spacing:1.5px;
-                  font-family:DM Mono;">
+                  font-family:IBM Plex Mono;">
         {label}
       </div>
     </div>
@@ -429,24 +430,24 @@ def prediction_badge(prediction: int,
                 border-radius:12px;
                 padding:20px;
                 text-align:center;">
-      <div style="font-family:Syne,sans-serif;
-                  font-size:32px;
+      <div style="font-family:Outfit,sans-serif;
+                  font-size:38px;
                   font-weight:800;
                   color:{color};">
         {label}
       </div>
-      <div style="font-size:22px;
+      <div style="font-size:24px;
                   color:{color};
-                  margin-top:4px;
-                  font-family:DM Mono;">
+                  margin-top:6px;
+                  font-family:IBM Plex Mono;">
         {pct}
       </div>
-      <div style="font-size:10px;
+      <div style="font-size:12px;
                   color:{C['muted']};
                   margin-top:8px;
                   text-transform:uppercase;
                   letter-spacing:1px;
-                  font-family:DM Mono;">
+                  font-family:IBM Plex Mono;">
         {horizon} prediction
       </div>
     </div>
@@ -458,25 +459,25 @@ def prediction_badge(prediction: int,
 with st.sidebar:
     st.html(f"""
     <div style="padding:8px 4px 20px 4px;">
-      <div style="font-family:Syne,sans-serif;
-                  font-size:26px;
-                  font-weight:800;
+      <div style="font-family:Outfit,sans-serif;
+                  font-size:30px;
+                  font-weight:900;
                   color:{C['blue']};
-                  letter-spacing:-0.5px;">
+                  letter-spacing:-1px;">
         PRECURSOR
       </div>
-      <div style="font-size:11px;
+      <div style="font-size:12px;
                   color:{C['muted']};
-                  margin-top:4px;
+                  margin-top:6px;
                   text-transform:uppercase;
                   letter-spacing:2px;
-                  font-family:DM Mono;">
+                  font-family:IBM Plex Mono;">
         Market Signal Intelligence
       </div>
       <div style="font-size:10px;
                   color:{C['muted']};
                   margin-top:8px;
-                  font-family:DM Mono;
+                  font-family:IBM Plex Mono;
                   opacity:0.7;">
         613 stocks · 2020–2026 · S&P 500
       </div>
@@ -523,19 +524,19 @@ with st.sidebar:
         color   = C["green"] if age_hrs < 24 else C["red"]
         label   = freshness.strftime("%b %d %H:%M UTC")
         st.html(f"""
-        <div style="font-size:10px;color:{C['muted']};
-                    font-family:DM Mono;text-transform:uppercase;
+        <div style="font-size:12px;color:{C['muted']};
+                    font-family:IBM Plex Mono;text-transform:uppercase;
                     letter-spacing:1px;margin-bottom:4px;">
           Last updated
         </div>
-        <div style="font-size:12px;color:{color};font-family:DM Mono;">
+        <div style="font-size:13px;color:{color};font-family:IBM Plex Mono;">
           ● {label}
         </div>
         """ )
 
     st.html(f"""
-    <div style="margin-top:24px;font-size:10px;
-                color:{C['muted']};font-family:DM Mono;
+    <div style="margin-top:24px;font-size:12px;
+                color:{C['muted']};font-family:IBM Plex Mono;
                 line-height:1.6;opacity:0.8;">
       ⚠️ Not financial advice.<br>
       For research purposes only.
@@ -544,7 +545,7 @@ with st.sidebar:
 
 
 # ══════════════════════════════════════════════════════════════
-# PAGE 1 — THE INSIDER TRADES
+# PAGE 1 - THE INSIDER TRADES
 # ══════════════════════════════════════════════════════════════
 
 if "Insider" in page:
@@ -552,24 +553,24 @@ if "Insider" in page:
     # Hero hook
     st.html(f"""
     <div style="padding:48px 0 36px 0;text-align:center;">
-      <div style="font-family:Syne,sans-serif;
-                  font-size:52px;
-                  font-weight:800;
+      <div style="font-family:Outfit,sans-serif;
+                  font-size:60px;
+                  font-weight:900;
                   color:{C['text']};
-                  letter-spacing:-1.5px;
-                  line-height:1.1;">
+                  letter-spacing:-2px;
+                  line-height:1.05;">
         The stock market is rigged.
       </div>
-      <div style="font-family:DM Mono;
-                  font-size:18px;
+      <div style="font-family:IBM Plex Mono;
+                  font-size:20px;
                   color:{C['blue']};
-                  margin-top:16px;">
+                  margin-top:20px;">
         I have 225,346 legal documents proving it.
       </div>
-      <div style="font-family:DM Mono;
-                  font-size:13px;
+      <div style="font-family:IBM Plex Mono;
+                  font-size:15px;
                   color:{C['muted']};
-                  margin-top:10px;">
+                  margin-top:12px;">
         All public. All legal. All hiding in plain sight on the SEC website.
       </div>
     </div>
@@ -622,10 +623,10 @@ if "Insider" in page:
         fig.add_trace(
             go.Scatter(
                 x=spy_price["date"],
-                y=spy_price["close"],
+                y=spy_price["return_1d"] * 100,
                 name="S&P 500",
                 line=dict(color="white", width=2),
-                hovertemplate="%{x|%b %d %Y}<br>S&P 500: $%{y:.0f}<extra></extra>",
+                hovertemplate="%{x|%b %d %Y}<br>S&P 500 Return: %{y:.1f}%<extra></extra>",
             ),
             secondary_y=True,
         )
@@ -645,7 +646,7 @@ if "Insider" in page:
                 x=x_date, y=1, yref="paper",
                 text=label,
                 showarrow=False,
-                font=dict(color=C["red"], size=11, family="DM Mono"),
+                font=dict(color=C["red"], size=11, family="IBM Plex Mono"),
                 bgcolor=C["card"],
                 bordercolor=C["red"],
                 borderwidth=1,
@@ -668,7 +669,7 @@ if "Insider" in page:
                 tickfont=dict(size=11),
             ),
             yaxis2=dict(
-                title="S&P 500 Price",
+                title="S&P 500 Return %",
                 title_font=dict(color="white", size=11),
                 tickfont=dict(size=11),
                 gridcolor=C["border"],
@@ -681,7 +682,7 @@ if "Insider" in page:
         insight_card(
             "Executive stock purchases must be disclosed to the SEC within 48 hours "
             "via Form 4 filings. These 225,346 documents are public record on "
-            "edgar.sec.gov. The pattern above is not a coincidence — insiders "
+            "edgar.sec.gov. The pattern above is not a coincidence - insiders "
             "bought aggressively at both major market bottoms.",
             color=C["red"],
         )
@@ -764,7 +765,7 @@ if "Insider" in page:
 
     # ── Raw filings table ─────────────────────────────────────
     section_header(
-        "The Evidence — Recent Form 4 Filings",
+        "The Evidence - Recent Form 4 Filings",
         "Every row is a legal disclosure. Public record. Source: SEC EDGAR"
     )
 
@@ -790,11 +791,11 @@ if "Insider" in page:
             use_container_width=True,
             hide_index=True,
         )
-        st.caption("Source: SEC EDGAR (edgar.sec.gov) — public domain")
+        st.caption("Source: SEC EDGAR (edgar.sec.gov) - public domain")
 
 
 # ══════════════════════════════════════════════════════════════
-# PAGE 2 — MARKET INSIGHTS
+# PAGE 2 - MARKET INSIGHTS
 # ══════════════════════════════════════════════════════════════
 
 elif "Insights" in page:
@@ -817,7 +818,7 @@ elif "Insights" in page:
 
     # ── TFT attention weights ─────────────────────────────────
     section_header(
-        "TFT Attention Weights — What The AI Paid Attention To",
+        "TFT Attention Weights - What The AI Paid Attention To",
         "Temporal Fusion Transformer variable importance from training"
     )
 
@@ -867,7 +868,7 @@ elif "Insights" in page:
         layout_enc.update(
             height=360,
             title=dict(
-                text="Encoder — Historical Patterns",
+                text="Encoder - Historical Patterns",
                 font=dict(size=14, color=C["text"]), x=0,
             ),
             xaxis=dict(gridcolor=C["border"], title="Attention Weight",
@@ -896,7 +897,7 @@ elif "Insights" in page:
         layout_dec.update(
             height=360,
             title=dict(
-                text="Decoder — Future Context",
+                text="Decoder - Future Context",
                 font=dict(size=14, color=C["text"]), x=0,
             ),
             xaxis=dict(gridcolor=C["border"], title="Attention Weight",
@@ -1125,14 +1126,14 @@ elif "Insights" in page:
             "Model accuracy of ~53% on 21-day direction is consistent with "
             "academic literature on stock prediction. The Efficient Market "
             "Hypothesis is real. The more interesting finding is in the "
-            "attention weights — the model learned that macro regime separates "
+            "attention weights - the model learned that macro regime separates "
             "from price momentum in a theoretically consistent way.",
             color=C["muted"],
         )
 
 
 # ══════════════════════════════════════════════════════════════
-# PAGE 3 — STOCK EXPLORER
+# PAGE 3 - STOCK EXPLORER
 # ══════════════════════════════════════════════════════════════
 
 elif "Explorer" in page:
@@ -1141,7 +1142,7 @@ elif "Explorer" in page:
 
     tickers_list = load_ticker_list()
     if not tickers_list:
-        st.warning("No tickers available — run the predict pipeline first.")
+        st.warning("No tickers available - run the predict pipeline first.")
         st.stop()
 
     # Stock selector row
@@ -1203,7 +1204,7 @@ elif "Explorer" in page:
 
     # ── Price chart ───────────────────────────────────────────
     section_header(
-        f"{selected_ticker} — Price & Signals",
+        f"{selected_ticker} - Price & Signals",
         f"{start_str} to {end_str}"
     )
 
@@ -1295,7 +1296,7 @@ elif "Explorer" in page:
           height=550,
           paper_bgcolor=C["bg"],
           plot_bgcolor=C["card"],
-          font=dict(color=C["text"], family="DM Mono"),
+          font=dict(color=C["text"], family="IBM Plex Mono"),
           margin=dict(t=20, b=40, l=50, r=30),
           showlegend=True,
           legend=dict(bgcolor=C["card"], bordercolor=C["border"],
@@ -1368,7 +1369,7 @@ elif "Explorer" in page:
 
     # ── Prediction history table ──────────────────────────────
     section_header(
-        f"Prediction History — {selected_ticker}",
+        f"Prediction History - {selected_ticker}",
         f"Last 90 {model_key.upper()} predictions"
     )
 
@@ -1387,7 +1388,7 @@ elif "Explorer" in page:
             {1: "↑ UP", 0: "↓ DOWN"}
         )
         preds_display["correct"] = preds_display["correct"].map(
-            {1: "✅", 0: "❌", None: "—"}
+            {1: "✅", 0: "❌", None: "-"}
         )
         preds_display.columns = [
             "Date", "Model", "Horizon",
@@ -1405,7 +1406,7 @@ elif "Explorer" in page:
 
 
 # ══════════════════════════════════════════════════════════════
-# PAGE 4 — TODAY'S PICKS
+# PAGE 4 - TODAY'S PICKS
 # ══════════════════════════════════════════════════════════════
 
 elif "Picks" in page:
@@ -1423,7 +1424,7 @@ elif "Picks" in page:
                 margin-bottom:24px;
                 font-size:12px;
                 color:{C['muted']};
-                font-family:DM Mono;">
+                font-family:IBM Plex Mono;">
       ⚠️ These are model outputs for research purposes only.
       Not financial advice. Past performance does not guarantee future results.
     </div>

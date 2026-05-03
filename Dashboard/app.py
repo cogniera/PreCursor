@@ -25,24 +25,25 @@ from databricks import sql
 from typing import Optional
 
 # __ Debugging ____________
-st.write("App started — testing connection...")
+
+st.write("Step 1 — app started")
 
 try:
+    st.write("Step 2 — creating connection...")
     conn = sql.connect(
         server_hostname="dbc-b7ee8514-f214.cloud.databricks.com",
         http_path="/sql/1.0/warehouses/189351f1633e6859",
         access_token=st.secrets["DATABRICKS_TOKEN"],
+        _retry_stop_after_attempts_count=3,
     )
-    cursor = conn.cursor()
-    cursor.execute("SELECT 1 AS test")
-    result = cursor.fetchall()
-    cursor.close()
+    st.write("Step 3 — connection created, running query...")
+    with conn.cursor() as cursor:
+        cursor.execute("SELECT 1 AS test")
+        result = cursor.fetchall()
     conn.close()
-    st.success(f"✅ Connected — result: {result}")
+    st.success(f"✅ Done — {result}")
 except Exception as e:
-    st.error(f"❌ Connection failed: {e}")
-
-st.stop()
+    st.error(f"❌ Failed at: {e}")
 
 # ── Page config ───────────────────────────────────────────────
 

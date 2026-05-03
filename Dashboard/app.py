@@ -593,6 +593,15 @@ if "Insider" in page:
         insider_monthly = load_insider_monthly()
         spy_price       = load_spy_price()
 
+    # DEBUG - remove after fixing
+    st.write(f"insider_monthly rows: {len(insider_monthly)}")
+    st.write(f"spy_price rows: {len(spy_price)}")
+    if not spy_price.empty:
+        st.write(f"spy_price dtypes: {spy_price.dtypes.to_dict()}")
+        st.write(f"spy_price sample: {spy_price.head(3).to_dict()}")
+    if not insider_monthly.empty:
+        st.write(f"insider sample: {insider_monthly.head(3).to_dict()}")
+
     if not insider_monthly.empty and not spy_price.empty:
         insider_monthly["month"] = pd.to_datetime(
             insider_monthly["month"]

@@ -208,11 +208,13 @@ def load_insider_monthly() -> pd.DataFrame:
 
 
 @st.cache_data(ttl=3600)
-def load_spy_price() -> pd.DataFrame:
+def load_market_return() -> pd.DataFrame:
     return run_query("""
-        SELECT date, return_1d
+        SELECT date, AVG(return_1d) AS return_1d
         FROM precursor.gold.features
-        WHERE ticker = 'SPY'
+        WHERE sector IS NOT NULL
+        AND return_1d IS NOT NULL
+        GROUP BY date
         ORDER BY date
     """)
 
@@ -586,30 +588,18 @@ if "Insider" in page:
 
     section_header(
         "They Bought The Bottom. Both Times.",
-        "Monthly insider filing activity vs S&P 500 cumulative return (2020-2026)"
+        "Monthly insider filing activity vs market cumulative return (2020-2026)"
     )
 
     with st.spinner("Loading insider trading data..."):
         insider_monthly = load_insider_monthly()
-        spy_price       = load_spy_price()
-
-    # DEBUG - remove after fixing
-    st.write(f"insider_monthly rows: {len(insider_monthly)}")
-    st.write(f"spy_price rows: {len(spy_price)}")
-    if not spy_price.empty:
-        st.write(f"spy_price dtypes: {spy_price.dtypes.to_dict()}")
-        st.write(f"spy_price sample: {spy_price.head(3).to_dict()}")
-    if not insider_monthly.empty:
-        st.write(f"insider sample: {insider_monthly.head(3).to_dict()}")
+        spy_price       = load_market_return()
 
     if not insider_monthly.empty and not spy_price.empty:
-        insider_monthly["month"] = pd.to_datetime(
-            insider_monthly["month"]
-        ).dt.tz_localize(None)
+        insider_monthly["month"] = pd.to_datetime(insider_monthly["month"])
 
-        spy_price["date"] = pd.to_datetime(
-            spy_price["date"]
-        ).dt.tz_localize(None)
+        # Sort and compute cumulative return
+        spy_price["date"] = pd.to_datetime(spy_price["date"])
         spy_price = spy_price.sort_values("date").reset_index(drop=True)
         spy_price["cumulative_return"] = (
             (1 + spy_price["return_1d"].fillna(0)).cumprod() - 1
@@ -632,9 +622,9 @@ if "Insider" in page:
             go.Scatter(
                 x=spy_price["date"],
                 y=spy_price["cumulative_return"],
-                name="S&P 500",
+                name="Market Average",
                 line=dict(color="white", width=2),
-                hovertemplate="%{x|%b %d %Y}<br>S&P 500 Return: %{y:.1f}%<extra></extra>",
+                hovertemplate="%{x|%b %d %Y}<br>Market Return: %{y:.1f}%<extra></extra>",
             ),
             secondary_y=True,
         )
@@ -664,7 +654,7 @@ if "Insider" in page:
                 tickfont=dict(size=11),
             ),
             yaxis2=dict(
-                title="S&P 500 Cumulative Return %",
+                title="Market Cumulative Return %",
                 title_font=dict(color="white", size=11),
                 tickfont=dict(size=11),
                 gridcolor=C["border"], showgrid=False,

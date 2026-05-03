@@ -488,10 +488,10 @@ with st.sidebar:
     page = st.radio(
         "Navigation",
         [
-            "🔴  The Insider Trades",
-            "📊  Market Insights",
-            "🔍  Stock Explorer",
-            "🏆  Today's Picks",
+            "  The Insider Trades",
+            "  Market Insights",
+            "  Stock Explorer",
+            "  Today's Picks",
         ],
         label_visibility="collapsed",
     )

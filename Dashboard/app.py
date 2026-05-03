@@ -309,7 +309,7 @@ def load_ohlcv(ticker: str, start: str, end: str) -> pd.DataFrame:
                rsi_14, macd, bb_position, volatility_21d,
                volume_zscore_21d, filing_count,
                DFF, T10Y2Y, VIXCLS, UNRATE, CPIAUCSL, M2SL
-        FROM precursor.silver.joined
+        FROM precursor.gold.features
         WHERE ticker = '{ticker}'
           AND date BETWEEN '{start}' AND '{end}'
         ORDER BY date

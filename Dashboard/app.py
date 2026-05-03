@@ -23,27 +23,59 @@ from plotly.subplots import make_subplots
 from datetime import date, datetime, timedelta
 from databricks import sql
 from typing import Optional
+import requests
 
 # __ Debugging ____________
 
 st.write("Step 1 — app started")
-st.write(f"Token starts with: {st.secrets['DATABRICKS_TOKEN'][:8]}...")
 st.write(f"Token length: {len(st.secrets['DATABRICKS_TOKEN'])}")
 
+token = st.secrets["DATABRICKS_TOKEN"]
+hostname = "dbc-b7ee8514-f214.cloud.databricks.com"
+warehouse_id = "189351f1633e6859"
+
+# Step 1 — start the warehouse
+st.write("Step 2 — starting warehouse...")
+start_response = requests.post(
+    f"https://{hostname}/api/2.0/sql/warehouses/{warehouse_id}/start",
+    headers={"Authorization": f"Bearer {token}"}
+)
+st.write(f"Start response: {start_response.status_code}")
+
+# Step 2 — wait 60 seconds for warehouse to wake up
+st.write("Step 3 — waiting 60 seconds for warehouse to start...")
+progress = st.progress(0)
+for i in range(60):
+    time.sleep(1)
+    progress.progress((i + 1) / 60)
+st.write("Step 3 — done waiting")
+
+# Step 3 — check warehouse state
+st.write("Step 4 — checking warehouse state...")
+state_response = requests.get(
+    f"https://{hostname}/api/2.0/sql/warehouses/{warehouse_id}",
+    headers={"Authorization": f"Bearer {token}"}
+)
+state = state_response.json().get("state", "unknown")
+st.write(f"Warehouse state: {state}")
+
+# Step 4 — try SQL connector
+st.write("Step 5 — connecting via SQL connector...")
 try:
-    st.write("Step 2 — creating connection...")
     with sql.connect(
-        server_hostname="dbc-b7ee8514-f214.cloud.databricks.com",
-        http_path="/sql/1.0/warehouses/189351f1633e6859",
-        access_token=st.secrets["DATABRICKS_TOKEN"],
+        server_hostname=hostname,
+        http_path=f"/sql/1.0/warehouses/{warehouse_id}",
+        access_token=token,
+        _retry_stop_after_attempts_count=3,
+        _retry_delay_min=5,
+        _retry_delay_max=15,
     ) as connection:
-        st.write("Step 3 — connection created...")
         with connection.cursor() as cursor:
             cursor.execute("SELECT 1 AS test")
             result = cursor.fetchall()
-        st.success(f"✅ Done — {result}")
+        st.success(f"✅ Connected — {result}")
 except Exception as e:
-    st.error(f"❌ Failed at: {e}")
+    st.error(f"❌ Failed: {e}")
 
 # ── Page config ───────────────────────────────────────────────
 

@@ -1190,8 +1190,7 @@ elif "Explorer" in page:
                         int(r["prediction"]),
                         float(r["probability"]),
                         lbl,
-                    ),
-                    unsafe_allow_html=True,
+                    )
                 )
 
     st.html("<br>" )

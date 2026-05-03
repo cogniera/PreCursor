@@ -103,7 +103,7 @@ st.html("""
     background: #1a2744 !important;
   }
 </style>
-""", unsafe_allow_html=True)
+""" )
 
 # ── Color palette ─────────────────────────────────────────────
 
@@ -342,7 +342,7 @@ def section_header(title: str, subtitle: str = "") -> None:
       </div>
       {sub_html}
     </div>
-    """, unsafe_allow_html=True)
+    """ )
 
 
 def insight_card(text: str, color: str = "#00d4ff") -> None:
@@ -358,7 +358,7 @@ def insight_card(text: str, color: str = "#00d4ff") -> None:
                 line-height:1.7;">
       {text}
     </div>
-    """, unsafe_allow_html=True)
+    """ )
 
 
 def stat_card(value: str, label: str,
@@ -453,7 +453,7 @@ with st.sidebar:
       </div>
     </div>
     <hr style="border-color:{C['border']};margin:0 0 20px 0;">
-    """, unsafe_allow_html=True)
+    """ )
 
     page = st.radio(
         "Navigation",
@@ -466,7 +466,7 @@ with st.sidebar:
         label_visibility="collapsed",
     )
 
-    st.html("<hr>", unsafe_allow_html=True)
+    st.html("<hr>" )
 
     selected_model_label = st.selectbox(
         "Model",
@@ -485,7 +485,7 @@ with st.sidebar:
     start_str = str(date_range[0]) if len(date_range) > 0 else "2024-01-01"
     end_str   = str(date_range[1]) if len(date_range) > 1 else str(date.today())
 
-    st.html("<hr>", unsafe_allow_html=True)
+    st.html("<hr>" )
 
     # Data freshness
     freshness = load_data_freshness()
@@ -502,7 +502,7 @@ with st.sidebar:
         <div style="font-size:12px;color:{color};font-family:DM Mono;">
           ● {label}
         </div>
-        """, unsafe_allow_html=True)
+        """ )
 
     st.html(f"""
     <div style="margin-top:24px;font-size:10px;
@@ -511,7 +511,7 @@ with st.sidebar:
       ⚠️ Not financial advice.<br>
       For research purposes only.
     </div>
-    """, unsafe_allow_html=True)
+    """ )
 
 
 # ══════════════════════════════════════════════════════════════
@@ -544,20 +544,20 @@ if "Insider" in page:
         All public. All legal. All hiding in plain sight on the SEC website.
       </div>
     </div>
-    """, unsafe_allow_html=True)
+    """ )
 
     # Stat cards
     c1, c2, c3, c4 = st.columns(4)
     with c1:
-        st.html(stat_card("225,346", "Form 4 Filings"), unsafe_allow_html=True)
+        st.html(stat_card("225,346", "Form 4 Filings") )
     with c2:
-        st.html(stat_card("613", "Companies Tracked"), unsafe_allow_html=True)
+        st.html(stat_card("613", "Companies Tracked") )
     with c3:
-        st.html(stat_card("6 yrs", "2020 → 2026", color=C["green"]), unsafe_allow_html=True)
+        st.html(stat_card("6 yrs", "2020 → 2026", color=C["green"]) )
     with c4:
-        st.html(stat_card("48 hrs", "SEC Disclosure Window", color=C["orange"]), unsafe_allow_html=True)
+        st.html(stat_card("48 hrs", "SEC Disclosure Window", color=C["orange"]) )
 
-    st.html("<br>", unsafe_allow_html=True)
+    st.html("<br>" )
 
     # ── Hero chart ────────────────────────────────────────────
     section_header(
@@ -1140,7 +1140,7 @@ elif "Explorer" in page:
                 f"${row['close']:.2f}",
                 f"{row['sector']} · {row['date']}",
                 color=C["text"],
-            ), unsafe_allow_html=True)
+            ) )
 
     # Predictions for this ticker
     for col, mdl, hrz, lbl in [
@@ -1168,7 +1168,7 @@ elif "Explorer" in page:
                     unsafe_allow_html=True,
                 )
 
-    st.html("<br>", unsafe_allow_html=True)
+    st.html("<br>" )
 
     # ── Price chart ───────────────────────────────────────────
     section_header(
@@ -1392,7 +1392,7 @@ elif "Picks" in page:
       ⚠️ These are model outputs for research purposes only.
       Not financial advice. Past performance does not guarantee future results.
     </div>
-    """, unsafe_allow_html=True)
+    """ )
 
     with st.spinner("Loading today's picks..."):
         picks = load_top_picks(model_key, horizon_key)
@@ -1412,7 +1412,7 @@ elif "Picks" in page:
                   f"{picks['probability_pct'].mean():.1f}%")
         c4.metric("Model", model_key.upper())
 
-        st.html("<br>", unsafe_allow_html=True)
+        st.html("<br>" )
 
         # Confidence bar chart
         fig_picks = go.Figure(go.Bar(

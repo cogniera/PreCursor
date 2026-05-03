@@ -594,10 +594,13 @@ if "Insider" in page:
         spy_price       = load_spy_price()
 
     if not insider_monthly.empty and not spy_price.empty:
-        insider_monthly["month"] = pd.to_datetime(insider_monthly["month"])
+        insider_monthly["month"] = pd.to_datetime(
+            insider_monthly["month"]
+        ).dt.tz_localize(None)
 
-        # Sort and compute cumulative return
-        spy_price["date"] = pd.to_datetime(spy_price["date"])
+        spy_price["date"] = pd.to_datetime(
+            spy_price["date"]
+        ).dt.tz_localize(None)
         spy_price = spy_price.sort_values("date").reset_index(drop=True)
         spy_price["cumulative_return"] = (
             (1 + spy_price["return_1d"].fillna(0)).cumprod() - 1

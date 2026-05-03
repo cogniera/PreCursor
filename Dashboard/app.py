@@ -645,7 +645,12 @@ if "Insider" in page:
 
         layout = {**PLOTLY_BASE}
         layout.update(
-            height=480, showlegend=False, title=None,
+            height=480, showlegend=False, 
+            title=dict(
+                text="Insider Filing Activity vs Market Return (2020-2026)",
+                font=dict(size=15, color=C["text"], family="Outfit"),
+                x=0,
+            ),
             xaxis=dict(gridcolor=C["border"], showgrid=False, tickfont=dict(size=11)),
             yaxis=dict(
                 gridcolor=C["border"], showgrid=True,

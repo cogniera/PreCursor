@@ -35,7 +35,7 @@ st.set_page_config(
 
 # ── Global CSS ────────────────────────────────────────────────
 
-st.markdown("""
+st.html("""
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   html, body, [class*="css"] {
@@ -329,7 +329,7 @@ def section_header(title: str, subtitle: str = "") -> None:
         f'margin-top:5px;font-family:DM Mono;">{subtitle}</div>'
         if subtitle else ""
     )
-    st.markdown(f"""
+    st.html(f"""
     <div style="margin:36px 0 20px 0;
                 padding-bottom:14px;
                 border-bottom:1px solid {C['border']};">
@@ -346,7 +346,7 @@ def section_header(title: str, subtitle: str = "") -> None:
 
 
 def insight_card(text: str, color: str = "#00d4ff") -> None:
-    st.markdown(f"""
+    st.html(f"""
     <div style="background:{C['card']};
                 border-left:3px solid {color};
                 border-radius:0 8px 8px 0;
@@ -427,7 +427,7 @@ def prediction_badge(prediction: int,
 # ── Sidebar ───────────────────────────────────────────────────
 
 with st.sidebar:
-    st.markdown(f"""
+    st.html(f"""
     <div style="padding:8px 4px 20px 4px;">
       <div style="font-family:Syne,sans-serif;
                   font-size:26px;
@@ -466,7 +466,7 @@ with st.sidebar:
         label_visibility="collapsed",
     )
 
-    st.markdown("<hr>", unsafe_allow_html=True)
+    st.html("<hr>", unsafe_allow_html=True)
 
     selected_model_label = st.selectbox(
         "Model",
@@ -485,7 +485,7 @@ with st.sidebar:
     start_str = str(date_range[0]) if len(date_range) > 0 else "2024-01-01"
     end_str   = str(date_range[1]) if len(date_range) > 1 else str(date.today())
 
-    st.markdown("<hr>", unsafe_allow_html=True)
+    st.html("<hr>", unsafe_allow_html=True)
 
     # Data freshness
     freshness = load_data_freshness()
@@ -493,7 +493,7 @@ with st.sidebar:
         age_hrs = (datetime.utcnow() - freshness).total_seconds() / 3600
         color   = C["green"] if age_hrs < 24 else C["red"]
         label   = freshness.strftime("%b %d %H:%M UTC")
-        st.markdown(f"""
+        st.html(f"""
         <div style="font-size:10px;color:{C['muted']};
                     font-family:DM Mono;text-transform:uppercase;
                     letter-spacing:1px;margin-bottom:4px;">
@@ -504,7 +504,7 @@ with st.sidebar:
         </div>
         """, unsafe_allow_html=True)
 
-    st.markdown(f"""
+    st.html(f"""
     <div style="margin-top:24px;font-size:10px;
                 color:{C['muted']};font-family:DM Mono;
                 line-height:1.6;opacity:0.8;">
@@ -521,7 +521,7 @@ with st.sidebar:
 if "Insider" in page:
 
     # Hero hook
-    st.markdown(f"""
+    st.html(f"""
     <div style="padding:48px 0 36px 0;text-align:center;">
       <div style="font-family:Syne,sans-serif;
                   font-size:52px;
@@ -549,15 +549,15 @@ if "Insider" in page:
     # Stat cards
     c1, c2, c3, c4 = st.columns(4)
     with c1:
-        st.markdown(stat_card("225,346", "Form 4 Filings"), unsafe_allow_html=True)
+        st.html(stat_card("225,346", "Form 4 Filings"), unsafe_allow_html=True)
     with c2:
-        st.markdown(stat_card("613", "Companies Tracked"), unsafe_allow_html=True)
+        st.html(stat_card("613", "Companies Tracked"), unsafe_allow_html=True)
     with c3:
-        st.markdown(stat_card("6 yrs", "2020 → 2026", color=C["green"]), unsafe_allow_html=True)
+        st.html(stat_card("6 yrs", "2020 → 2026", color=C["green"]), unsafe_allow_html=True)
     with c4:
-        st.markdown(stat_card("48 hrs", "SEC Disclosure Window", color=C["orange"]), unsafe_allow_html=True)
+        st.html(stat_card("48 hrs", "SEC Disclosure Window", color=C["orange"]), unsafe_allow_html=True)
 
-    st.markdown("<br>", unsafe_allow_html=True)
+    st.html("<br>", unsafe_allow_html=True)
 
     # ── Hero chart ────────────────────────────────────────────
     section_header(
@@ -1136,7 +1136,7 @@ elif "Explorer" in page:
     with col_info:
         if not latest_price.empty:
             row = latest_price.iloc[0]
-            st.markdown(stat_card(
+            st.html(stat_card(
                 f"${row['close']:.2f}",
                 f"{row['sector']} · {row['date']}",
                 color=C["text"],
@@ -1159,7 +1159,7 @@ elif "Explorer" in page:
         with col:
             if not pred_row.empty:
                 r = pred_row.iloc[0]
-                st.markdown(
+                st.html(
                     prediction_badge(
                         int(r["prediction"]),
                         float(r["probability"]),
@@ -1168,7 +1168,7 @@ elif "Explorer" in page:
                     unsafe_allow_html=True,
                 )
 
-    st.markdown("<br>", unsafe_allow_html=True)
+    st.html("<br>", unsafe_allow_html=True)
 
     # ── Price chart ───────────────────────────────────────────
     section_header(
@@ -1380,7 +1380,7 @@ elif "Picks" in page:
         f"Highest confidence predictions · {model_key.upper()} · {horizon_key} horizon"
     )
 
-    st.markdown(f"""
+    st.html(f"""
     <div style="background:{C['card']};
                 border:1px solid {C['orange']};
                 border-radius:10px;
@@ -1412,7 +1412,7 @@ elif "Picks" in page:
                   f"{picks['probability_pct'].mean():.1f}%")
         c4.metric("Model", model_key.upper())
 
-        st.markdown("<br>", unsafe_allow_html=True)
+        st.html("<br>", unsafe_allow_html=True)
 
         # Confidence bar chart
         fig_picks = go.Figure(go.Bar(

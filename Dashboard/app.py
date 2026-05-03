@@ -305,9 +305,12 @@ def load_predictions_for_ticker(
 @st.cache_data(ttl=3600)
 def load_ohlcv(ticker: str, start: str, end: str) -> pd.DataFrame:
     return run_query(f"""
-        SELECT date, open, high, low, close, volume,
-               rsi_14, macd, bb_position, volatility_21d,
-               volume_zscore_21d, filing_count,
+        SELECT date,
+               return_1d, return_5d, return_21d,
+               volatility_21d, volume_zscore_21d,
+               rsi_14, macd, bb_position, bb_width,
+               price_vs_52w_high, price_vs_sma20,
+               atr_pct, insider_filings_7d,
                DFF, T10Y2Y, VIXCLS, UNRATE, CPIAUCSL, M2SL
         FROM precursor.gold.features
         WHERE ticker = '{ticker}'
@@ -1214,95 +1217,93 @@ elif "Explorer" in page:
         preds["date"] = pd.to_datetime(preds["date"]).dt.tz_localize(None)
 
     if not ohlcv.empty:
-        ohlcv["date"] = pd.to_datetime(ohlcv["date"])
-
-        fig_price = make_subplots(
-            rows=2, cols=1,
-            shared_xaxes=True,
-            row_heights=[0.75, 0.25],
-            vertical_spacing=0.04,
-        )
-
-        # Candlestick
-        fig_price.add_trace(go.Candlestick(
-            x=ohlcv["date"],
-            open=ohlcv["open"], high=ohlcv["high"],
-            low=ohlcv["low"],   close=ohlcv["close"],
-            increasing=dict(line=dict(color=C["green"]),
-                            fillcolor=C["green"]),
-            decreasing=dict(line=dict(color=C["red"]),
-                            fillcolor=C["red"]),
-            name="Price",
-        ), row=1, col=1)
-
-        # Prediction markers
-        if not preds.empty:
-            preds["date"] = pd.to_datetime(preds["date"])
-            up_preds   = preds[preds["prediction"] == 1].merge(
-                ohlcv[["date", "high"]], on="date", how="left"
-            )
-            down_preds = preds[preds["prediction"] == 0].merge(
-                ohlcv[["date", "low"]], on="date", how="left"
-            )
-
-            if not up_preds.empty:
-                fig_price.add_trace(go.Scatter(
-                    x=up_preds["date"],
-                    y=up_preds["high"] * 1.01,
-                    mode="markers",
-                    marker=dict(
-                        symbol="triangle-up",
-                        size=8,
-                        color=C["green"],
-                    ),
-                    name="Predicted UP",
-                    hovertemplate="%{x|%b %d}<br>↑ UP<extra></extra>",
-                ), row=1, col=1)
-
-            if not down_preds.empty:
-                fig_price.add_trace(go.Scatter(
-                    x=down_preds["date"],
-                    y=down_preds["low"] * 0.99,
-                    mode="markers",
-                    marker=dict(
-                        symbol="triangle-down",
-                        size=8,
-                        color=C["red"],
-                    ),
-                    name="Predicted DOWN",
-                    hovertemplate="%{x|%b %d}<br>↓ DOWN<extra></extra>",
-                ), row=1, col=1)
-
-        # Volume
-        vol_colors = [
-            C["green"] if c >= o else C["red"]
-            for c, o in zip(ohlcv["close"], ohlcv["open"])
-        ]
-        fig_price.add_trace(go.Bar(
-            x=ohlcv["date"], y=ohlcv["volume"],
-            marker=dict(color=vol_colors, opacity=0.5, line=dict(width=0)),
-            name="Volume",
-            hovertemplate="%{x|%b %d}<br>Vol: %{y:,.0f}<extra></extra>",
-        ), row=2, col=1)
-
-        fig_price.update_layout(
-            height=550,
-            paper_bgcolor=C["bg"],
-            plot_bgcolor=C["card"],
-            font=dict(color=C["text"], family="DM Mono"),
-            margin=dict(t=20, b=40, l=50, r=30),
-            showlegend=True,
-            legend=dict(
-                bgcolor=C["card"], bordercolor=C["border"],
-                borderwidth=1, font=dict(size=11),
-            ),
-            xaxis_rangeslider_visible=False,
-            xaxis2=dict(gridcolor=C["border"], showgrid=False),
-            yaxis=dict(gridcolor=C["border"]),
-            yaxis2=dict(gridcolor=C["border"], showgrid=False,
-                        title="Volume"),
-        )
-        st.plotly_chart(fig_price, use_container_width=True)
+      ohlcv["date"] = pd.to_datetime(ohlcv["date"]).dt.tz_localize(None)
+      ohlcv["cumulative_return"] = (
+          (1 + ohlcv["return_1d"].fillna(0)).cumprod() - 1
+      ) * 100
+  
+      fig_price = make_subplots(
+          rows=2, cols=1,
+          shared_xaxes=True,
+          row_heights=[0.7, 0.3],
+          vertical_spacing=0.04,
+      )
+  
+      # Cumulative return line
+      fig_price.add_trace(go.Scatter(
+          x=ohlcv["date"],
+          y=ohlcv["cumulative_return"],
+          name="Cumulative Return %",
+          line=dict(color=C["blue"], width=2),
+          fill="tozeroy",
+          fillcolor="rgba(0, 212, 255, 0.08)",
+          hovertemplate="%{x|%b %d %Y}<br>Return: %{y:.1f}%<extra></extra>",
+      ), row=1, col=1)
+  
+      # Prediction markers on return chart
+      if not preds.empty:
+          up_preds = preds[preds["prediction"] == 1].merge(
+              ohlcv[["date", "cumulative_return"]], on="date", how="left"
+          )
+          down_preds = preds[preds["prediction"] == 0].merge(
+              ohlcv[["date", "cumulative_return"]], on="date", how="left"
+          )
+  
+          if not up_preds.empty:
+              fig_price.add_trace(go.Scatter(
+                  x=up_preds["date"],
+                  y=up_preds["cumulative_return"],
+                  mode="markers",
+                  marker=dict(symbol="triangle-up", size=8, color=C["green"]),
+                  name="Predicted UP",
+                  hovertemplate="%{x|%b %d}<br>↑ Predicted UP<extra></extra>",
+              ), row=1, col=1)
+  
+          if not down_preds.empty:
+              fig_price.add_trace(go.Scatter(
+                  x=down_preds["date"],
+                  y=down_preds["cumulative_return"],
+                  mode="markers",
+                  marker=dict(symbol="triangle-down", size=8, color=C["red"]),
+                  name="Predicted DOWN",
+                  hovertemplate="%{x|%b %d}<br>↓ Predicted DOWN<extra></extra>",
+              ), row=1, col=1)
+  
+      # Volume zscore instead of raw volume
+      fig_price.add_trace(go.Bar(
+          x=ohlcv["date"],
+          y=ohlcv["volume_zscore_21d"],
+          name="Volume Z-Score",
+          marker=dict(
+              color=[C["green"] if v > 0 else C["red"]
+                     for v in ohlcv["volume_zscore_21d"].fillna(0)],
+              opacity=0.6,
+              line=dict(width=0),
+          ),
+          hovertemplate="%{x|%b %d}<br>Vol Z-Score: %{y:.2f}<extra></extra>",
+      ), row=2, col=1)
+  
+      fig_price.add_hline(
+          y=0, row=1, col=1,
+          line_color=C["muted"], line_width=1, line_dash="dot"
+      )
+  
+      fig_price.update_layout(
+          height=550,
+          paper_bgcolor=C["bg"],
+          plot_bgcolor=C["card"],
+          font=dict(color=C["text"], family="DM Mono"),
+          margin=dict(t=20, b=40, l=50, r=30),
+          showlegend=True,
+          legend=dict(bgcolor=C["card"], bordercolor=C["border"],
+                      borderwidth=1, font=dict(size=11)),
+          xaxis_rangeslider_visible=False,
+          xaxis2=dict(gridcolor=C["border"], showgrid=False),
+          yaxis=dict(gridcolor=C["border"], title="Cumulative Return %"),
+          yaxis2=dict(gridcolor=C["border"], showgrid=False,
+                      title="Volume Z-Score"),
+      )
+      st.plotly_chart(fig_price, use_container_width=True)
 
     # ── Technical indicators ──────────────────────────────────
     if not ohlcv.empty:

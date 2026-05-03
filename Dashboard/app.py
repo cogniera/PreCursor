@@ -24,6 +24,26 @@ from datetime import date, datetime, timedelta
 from databricks import sql
 from typing import Optional
 
+# __ Debugging ____________
+st.write("App started — testing connection...")
+
+try:
+    conn = sql.connect(
+        server_hostname="dbc-b7ee8514-f214.cloud.databricks.com",
+        http_path="/sql/1.0/warehouses/189351f1633e6859",
+        access_token=st.secrets["DATABRICKS_TOKEN"],
+    )
+    cursor = conn.cursor()
+    cursor.execute("SELECT 1 AS test")
+    result = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    st.success(f"✅ Connected — result: {result}")
+except Exception as e:
+    st.error(f"❌ Connection failed: {e}")
+
+st.stop()
+
 # ── Page config ───────────────────────────────────────────────
 
 st.set_page_config(

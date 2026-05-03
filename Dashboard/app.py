@@ -106,7 +106,7 @@ st.html("""
     background: #1a2744 !important;
   }
 </style>
-""" )
+""")
 
 # ── Color palette ─────────────────────────────────────────────
 
@@ -126,7 +126,7 @@ C = {
 PLOTLY_BASE = dict(
     paper_bgcolor=C["bg"],
     plot_bgcolor=C["card"],
-    font=dict(color=C["text"], family="IBM Plex Mono"),
+    font=dict(color=C["text"], family="IBM Plex Mono", size=13),
     margin=dict(t=60, b=40, l=50, r=30),
     xaxis=dict(gridcolor="#1a2744", showgrid=True,
                zeroline=False, tickfont=dict(size=11)),
@@ -141,7 +141,7 @@ PLOTLY_BASE = dict(
     hoverlabel=dict(
         bgcolor=C["card"],
         bordercolor=C["border"],
-        font=dict(family="IBM Plex Mono", size=12),
+        font=dict(family="IBM Plex Mono", size=13),
     ),
 )
 
@@ -372,7 +372,7 @@ def section_header(title: str, subtitle: str = "") -> None:
       </div>
       {sub_html}
     </div>
-    """ )
+    """)
 
 
 def insight_card(text: str, color: str = "#00d4ff") -> None:
@@ -388,11 +388,10 @@ def insight_card(text: str, color: str = "#00d4ff") -> None:
                 line-height:1.8;">
       {text}
     </div>
-    """ )
+    """)
 
 
-def stat_card(value: str, label: str,
-              color: str = "#00d4ff") -> str:
+def stat_card(value: str, label: str, color: str = "#00d4ff") -> str:
     return f"""
     <div style="background:{C['card']};
                 border:1px solid {C['border']};
@@ -418,12 +417,11 @@ def stat_card(value: str, label: str,
     """
 
 
-def prediction_badge(prediction: int,
-                     probability: float,
-                     horizon: str) -> str:
-    label  = "↑ UP" if prediction == 1 else "↓ DOWN"
-    color  = C["green"] if prediction == 1 else C["red"]
-    pct    = f"{probability*100:.1f}%"
+def prediction_badge(prediction: int, probability: float, horizon: str) -> str:
+    label = "up UP" if prediction == 1 else "down DOWN"
+    arrow = "↑" if prediction == 1 else "↓"
+    color = C["green"] if prediction == 1 else C["red"]
+    pct   = f"{probability*100:.1f}%"
     return f"""
     <div style="background:{C['card']};
                 border:2px solid {color};
@@ -434,7 +432,7 @@ def prediction_badge(prediction: int,
                   font-size:38px;
                   font-weight:800;
                   color:{color};">
-        {label}
+        {arrow} {"UP" if prediction == 1 else "DOWN"}
       </div>
       <div style="font-size:24px;
                   color:{color};
@@ -479,11 +477,11 @@ with st.sidebar:
                   margin-top:8px;
                   font-family:IBM Plex Mono;
                   opacity:0.7;">
-        613 stocks · 2020–2026 · S&P 500
+        613 stocks · 2020-2026 · S&P 500
       </div>
     </div>
     <hr style="border-color:{C['border']};margin:0 0 20px 0;">
-    """ )
+    """)
 
     page = st.radio(
         "Navigation",
@@ -496,7 +494,7 @@ with st.sidebar:
         label_visibility="collapsed",
     )
 
-    st.html("<hr>" )
+    st.html("<hr>")
 
     selected_model_label = st.selectbox(
         "Model",
@@ -515,33 +513,32 @@ with st.sidebar:
     start_str = str(date_range[0]) if len(date_range) > 0 else "2024-01-01"
     end_str   = str(date_range[1]) if len(date_range) > 1 else str(date.today())
 
-    st.html("<hr>" )
+    st.html("<hr>")
 
-    # Data freshness
     freshness = load_data_freshness()
     if freshness:
         age_hrs = (datetime.now(freshness.tzinfo) - freshness).total_seconds() / 3600
-        color   = C["green"] if age_hrs < 24 else C["red"]
-        label   = freshness.strftime("%b %d %H:%M UTC")
+        f_color = C["green"] if age_hrs < 24 else C["red"]
+        f_label = freshness.strftime("%b %d %H:%M UTC")
         st.html(f"""
         <div style="font-size:12px;color:{C['muted']};
                     font-family:IBM Plex Mono;text-transform:uppercase;
                     letter-spacing:1px;margin-bottom:4px;">
           Last updated
         </div>
-        <div style="font-size:13px;color:{color};font-family:IBM Plex Mono;">
-          ● {label}
+        <div style="font-size:13px;color:{f_color};font-family:IBM Plex Mono;">
+          * {f_label}
         </div>
-        """ )
+        """)
 
     st.html(f"""
     <div style="margin-top:24px;font-size:12px;
                 color:{C['muted']};font-family:IBM Plex Mono;
                 line-height:1.6;opacity:0.8;">
-      ⚠️ Not financial advice.<br>
+      Not financial advice.<br>
       For research purposes only.
     </div>
-    """ )
+    """)
 
 
 # ══════════════════════════════════════════════════════════════
@@ -550,7 +547,6 @@ with st.sidebar:
 
 if "Insider" in page:
 
-    # Hero hook
     st.html(f"""
     <div style="padding:48px 0 36px 0;text-align:center;">
       <div style="font-family:Outfit,sans-serif;
@@ -574,25 +570,23 @@ if "Insider" in page:
         All public. All legal. All hiding in plain sight on the SEC website.
       </div>
     </div>
-    """ )
+    """)
 
-    # Stat cards
     c1, c2, c3, c4 = st.columns(4)
     with c1:
-        st.html(stat_card("225,346", "Form 4 Filings") )
+        st.html(stat_card("225,346", "Form 4 Filings"))
     with c2:
-        st.html(stat_card("613", "Companies Tracked") )
+        st.html(stat_card("613", "Companies Tracked"))
     with c3:
-        st.html(stat_card("6 yrs", "2020 → 2026", color=C["green"]) )
+        st.html(stat_card("6 yrs", "2020 to 2026", color=C["green"]))
     with c4:
-        st.html(stat_card("48 hrs", "SEC Disclosure Window", color=C["orange"]) )
+        st.html(stat_card("48 hrs", "SEC Disclosure Window", color=C["orange"]))
 
-    st.html("<br>" )
+    st.html("<br>")
 
-    # ── Hero chart ────────────────────────────────────────────
     section_header(
         "They Bought The Bottom. Both Times.",
-        "Monthly insider filing activity vs S&P 500 price (2020–2026)"
+        "Monthly insider filing activity vs S&P 500 cumulative return (2020-2026)"
     )
 
     with st.spinner("Loading insider trading data..."):
@@ -601,7 +595,13 @@ if "Insider" in page:
 
     if not insider_monthly.empty and not spy_price.empty:
         insider_monthly["month"] = pd.to_datetime(insider_monthly["month"])
-        spy_price["date"]        = pd.to_datetime(spy_price["date"])
+
+        # Sort and compute cumulative return
+        spy_price["date"] = pd.to_datetime(spy_price["date"])
+        spy_price = spy_price.sort_values("date").reset_index(drop=True)
+        spy_price["cumulative_return"] = (
+            (1 + spy_price["return_1d"].fillna(0)).cumprod() - 1
+        ) * 100
 
         fig = make_subplots(specs=[[{"secondary_y": True}]])
 
@@ -610,11 +610,7 @@ if "Insider" in page:
                 x=insider_monthly["month"],
                 y=insider_monthly["filing_count"],
                 name="Insider Filings",
-                marker=dict(
-                    color=C["blue"],
-                    opacity=0.65,
-                    line=dict(width=0),
-                ),
+                marker=dict(color=C["blue"], opacity=0.65, line=dict(width=0)),
                 hovertemplate="%{x|%b %Y}<br>%{y:,} filings<extra></extra>",
             ),
             secondary_y=False,
@@ -623,7 +619,7 @@ if "Insider" in page:
         fig.add_trace(
             go.Scatter(
                 x=spy_price["date"],
-                y=((1 + spy_price["return_1d"].fillna(0)).cumprod() - 1) * 100,
+                y=spy_price["cumulative_return"],
                 name="S&P 500",
                 line=dict(color="white", width=2),
                 hovertemplate="%{x|%b %d %Y}<br>S&P 500 Return: %{y:.1f}%<extra></extra>",
@@ -631,37 +627,24 @@ if "Insider" in page:
             secondary_y=True,
         )
 
-        # Annotations for key moments
-        for x_date, label in [
+        for x_date, ann_label in [
             ("2020-03-23", "Insiders bought aggressively<br>Market bottomed"),
             ("2022-10-12", "Insider buying spiked again<br>Market bottomed exactly then"),
         ]:
-            fig.add_vline(
-                x=x_date,
-                line_dash="dash",
-                line_color=C["red"],
-                line_width=1.5,
-            )
+            fig.add_vline(x=x_date, line_dash="dash",
+                          line_color=C["red"], line_width=1.5)
             fig.add_annotation(
                 x=x_date, y=1, yref="paper",
-                text=label,
-                showarrow=False,
+                text=ann_label, showarrow=False,
                 font=dict(color=C["red"], size=11, family="IBM Plex Mono"),
-                bgcolor=C["card"],
-                bordercolor=C["red"],
-                borderwidth=1,
-                xanchor="left",
-                yanchor="top",
-                xshift=8,
+                bgcolor=C["card"], bordercolor=C["red"], borderwidth=1,
+                xanchor="left", yanchor="top", xshift=8,
             )
 
         layout = {**PLOTLY_BASE}
         layout.update(
-            height=480,
-            showlegend=False,
-            title=None,
-            xaxis=dict(gridcolor=C["border"], showgrid=False,
-                       tickfont=dict(size=11)),
+            height=480, showlegend=False, title=None,
+            xaxis=dict(gridcolor=C["border"], showgrid=False, tickfont=dict(size=11)),
             yaxis=dict(
                 gridcolor=C["border"], showgrid=True,
                 title="Monthly Filings",
@@ -672,8 +655,7 @@ if "Insider" in page:
                 title="S&P 500 Cumulative Return %",
                 title_font=dict(color="white", size=11),
                 tickfont=dict(size=11),
-                gridcolor=C["border"],
-                showgrid=False,
+                gridcolor=C["border"], showgrid=False,
             ),
         )
         fig.update_layout(**layout)
@@ -687,10 +669,9 @@ if "Insider" in page:
             color=C["red"],
         )
 
-    # ── Sector breakdown ──────────────────────────────────────
     section_header(
         "Which Sectors Had The Most Insider Activity?",
-        "Cumulative Form 4 filings by GICS sector · 2020–2026"
+        "Cumulative Form 4 filings by GICS sector - 2020-2026"
     )
 
     col_left, col_right = st.columns(2)
@@ -700,6 +681,8 @@ if "Insider" in page:
             sector_df = load_sector_filings()
 
         if not sector_df.empty:
+            # Sort ascending so largest bar is at top
+            sector_df = sector_df.sort_values("filings", ascending=True)
             max_filings = sector_df["filings"].max()
             colors = [
                 C["blue"] if v == max_filings
@@ -715,8 +698,11 @@ if "Insider" in page:
             ))
             layout2 = {**PLOTLY_BASE}
             layout2.update(
-                height=360,
-                title=None,
+                height=380,
+                title=dict(
+                    text="Form 4 Filings by Sector",
+                    font=dict(size=14, color=C["text"]), x=0,
+                ),
                 xaxis=dict(gridcolor=C["border"], title="Total Filings",
                            tickfont=dict(size=11)),
                 yaxis=dict(gridcolor=C["border"], showgrid=False,
@@ -738,14 +724,14 @@ if "Insider" in page:
                 x=["Normal Activity", "Spike Detected"],
                 y=[no_spike_acc * 100, spike_acc * 100],
                 marker=dict(
-                    color=[C["muted"], C["green"] if spike_acc >= no_spike_acc else C["red"]],
+                    color=[C["muted"],
+                           C["green"] if spike_acc >= no_spike_acc else C["red"]],
                     line=dict(width=0),
                 ),
                 hovertemplate="%{x}<br>Accuracy: %{y:.1f}%<extra></extra>",
             ))
             fig3.add_hline(
-                y=50, line_dash="dash",
-                line_color=C["muted"], line_width=1,
+                y=50, line_dash="dash", line_color=C["muted"], line_width=1,
                 annotation_text="Random baseline",
                 annotation_font=dict(color=C["muted"], size=10),
             )
@@ -763,7 +749,6 @@ if "Insider" in page:
             if finding_text:
                 insight_card(finding_text, color=C["green"])
 
-    # ── Raw filings table ─────────────────────────────────────
     section_header(
         "The Evidence - Recent Form 4 Filings",
         "Every row is a legal disclosure. Public record. Source: SEC EDGAR"
@@ -786,11 +771,7 @@ if "Insider" in page:
             "days_to_file":     "Days to Disclose",
             "is_late_filing":   "Late?",
         })
-        st.dataframe(
-            filings_display,
-            use_container_width=True,
-            hide_index=True,
-        )
+        st.dataframe(filings_display, use_container_width=True, hide_index=True)
         st.caption("Source: SEC EDGAR (edgar.sec.gov) - public domain")
 
 
@@ -802,10 +783,9 @@ elif "Insights" in page:
 
     section_header(
         "What Did The Models Actually Learn?",
-        "Research findings across 613 stocks · 2020–2026 · 42 features"
+        "Research findings across 613 stocks - 2020-2026 - 42 features"
     )
 
-    # Pipeline stats
     c1, c2, c3, c4 = st.columns(4)
     with c1:
         st.metric("Training Rows", "762K")
@@ -816,13 +796,11 @@ elif "Insights" in page:
     with c4:
         st.metric("Stocks", "613")
 
-    # ── TFT attention weights ─────────────────────────────────
     section_header(
         "TFT Attention Weights - What The AI Paid Attention To",
         "Temporal Fusion Transformer variable importance from training"
     )
 
-    # Hardcoded from training output
     encoder_data = {
         "return_63d":       135,
         "return_1d":         70,
@@ -836,16 +814,16 @@ elif "Insights" in page:
         "return_21d":        18,
     }
     decoder_data = {
-        "inflation_mom":        155,
+        "inflation_mom":          155,
         "unemployment_delta_63d": 115,
-        "fed_rate_delta_63d":    68,
-        "yield_curve_change_21d":50,
-        "vix_level":             45,
-        "yield_curve_level":     32,
-        "fed_rate_delta_21d":    24,
-        "m2_growth_63d":         12,
-        "vix_zscore_63d":         8,
-        "macro_regime":           6,
+        "fed_rate_delta_63d":      68,
+        "yield_curve_change_21d":  50,
+        "vix_level":               45,
+        "yield_curve_level":       32,
+        "fed_rate_delta_21d":      24,
+        "m2_growth_63d":           12,
+        "vix_zscore_63d":           8,
+        "macro_regime":             6,
     }
 
     col_enc, col_dec = st.columns(2)
@@ -853,24 +831,20 @@ elif "Insights" in page:
     with col_enc:
         enc_features = list(encoder_data.keys())
         enc_vals     = list(encoder_data.values())
-        max_enc      = max(enc_vals)
         enc_colors   = [
             C["blue"] if v >= sorted(enc_vals)[-3] else "#1e4a6e"
             for v in enc_vals
         ]
         fig_enc = go.Figure(go.Bar(
-            x=enc_vals, y=enc_features,
-            orientation="h",
+            x=enc_vals, y=enc_features, orientation="h",
             marker=dict(color=enc_colors, line=dict(width=0)),
             hovertemplate="%{y}<br>Weight: %{x}<extra></extra>",
         ))
         layout_enc = {**PLOTLY_BASE}
         layout_enc.update(
             height=360,
-            title=dict(
-                text="Encoder - Historical Patterns",
-                font=dict(size=14, color=C["text"]), x=0,
-            ),
+            title=dict(text="Encoder - Historical Patterns",
+                       font=dict(size=14, color=C["text"]), x=0),
             xaxis=dict(gridcolor=C["border"], title="Attention Weight",
                        tickfont=dict(size=10)),
             yaxis=dict(showgrid=False, tickfont=dict(size=11),
@@ -888,18 +862,15 @@ elif "Insights" in page:
             for v in dec_vals
         ]
         fig_dec = go.Figure(go.Bar(
-            x=dec_vals, y=dec_features,
-            orientation="h",
+            x=dec_vals, y=dec_features, orientation="h",
             marker=dict(color=dec_colors, line=dict(width=0)),
             hovertemplate="%{y}<br>Weight: %{x}<extra></extra>",
         ))
         layout_dec = {**PLOTLY_BASE}
         layout_dec.update(
             height=360,
-            title=dict(
-                text="Decoder - Future Context",
-                font=dict(size=14, color=C["text"]), x=0,
-            ),
+            title=dict(text="Decoder - Future Context",
+                       font=dict(size=14, color=C["text"]), x=0),
             xaxis=dict(gridcolor=C["border"], title="Attention Weight",
                        tickfont=dict(size=10)),
             yaxis=dict(showgrid=False, tickfont=dict(size=11),
@@ -918,10 +889,9 @@ elif "Insights" in page:
         color=C["blue"],
     )
 
-    # ── Sector predictability ─────────────────────────────────
     section_header(
         "Which Sectors Are Most Predictable?",
-        "XGBoost accuracy by GICS sector · test set 2024–2026"
+        "XGBoost accuracy by GICS sector - test set 2024-2026"
     )
 
     findings = load_findings()
@@ -944,19 +914,15 @@ elif "Insights" in page:
             textfont=dict(size=11, color=C["subtext"]),
         ))
         fig_sec.add_vline(
-            x=50, line_dash="dash",
-            line_color=C["muted"], line_width=1.5,
+            x=50, line_dash="dash", line_color=C["muted"], line_width=1.5,
             annotation_text="Random baseline (50%)",
             annotation_font=dict(color=C["muted"], size=10),
         )
         layout_sec = {**PLOTLY_BASE}
         layout_sec.update(
-            height=380,
-            title=None,
-            xaxis=dict(
-                gridcolor=C["border"], range=[46, 57],
-                title="Accuracy %", tickfont=dict(size=11),
-            ),
+            height=380, title=None,
+            xaxis=dict(gridcolor=C["border"], range=[46, 57],
+                       title="Accuracy %", tickfont=dict(size=11)),
             yaxis=dict(showgrid=False, tickfont=dict(size=11),
                        autorange="reversed"),
         )
@@ -967,7 +933,6 @@ elif "Insights" in page:
         if finding_text:
             insight_card(finding_text, color=C["orange"])
 
-    # ── Macro regime analysis ─────────────────────────────────
     section_header(
         "Macro Regime Analysis",
         "Does the economic environment affect model accuracy?"
@@ -987,16 +952,12 @@ elif "Insights" in page:
             ]
             fig_regime = go.Figure(go.Bar(
                 x=labels, y=values,
-                marker=dict(
-                    color=[C["red"], C["orange"], C["green"]],
-                    line=dict(width=0),
-                ),
+                marker=dict(color=[C["red"], C["orange"], C["green"]],
+                            line=dict(width=0)),
                 hovertemplate="%{x}<br>Accuracy: %{y:.1f}%<extra></extra>",
             ))
-            fig_regime.add_hline(
-                y=50, line_dash="dash",
-                line_color=C["muted"], line_width=1,
-            )
+            fig_regime.add_hline(y=50, line_dash="dash",
+                                  line_color=C["muted"], line_width=1)
             layout_regime = {**PLOTLY_BASE}
             layout_regime.update(
                 height=300,
@@ -1020,16 +981,11 @@ elif "Insights" in page:
             fig_vix = go.Figure(go.Bar(
                 x=["Low VIX (<15)", "High VIX (>25)"],
                 y=[low_vix, high_vix],
-                marker=dict(
-                    color=[C["green"], C["red"]],
-                    line=dict(width=0),
-                ),
+                marker=dict(color=[C["green"], C["red"]], line=dict(width=0)),
                 hovertemplate="%{x}<br>Accuracy: %{y:.1f}%<extra></extra>",
             ))
-            fig_vix.add_hline(
-                y=50, line_dash="dash",
-                line_color=C["muted"], line_width=1,
-            )
+            fig_vix.add_hline(y=50, line_dash="dash",
+                               line_color=C["muted"], line_width=1)
             layout_vix = {**PLOTLY_BASE}
             layout_vix.update(
                 height=300,
@@ -1045,10 +1001,9 @@ elif "Insights" in page:
             if vix_finding:
                 insight_card(vix_finding, color=C["blue"])
 
-    # ── Backtest ──────────────────────────────────────────────
     section_header(
         "Strategy Performance vs S&P 500",
-        "Confidence-filtered trades · 0.01% commission + 0.05% slippage"
+        "Confidence-filtered trades - 0.01% commission + 0.05% slippage"
     )
 
     with st.spinner("Loading backtest..."):
@@ -1058,8 +1013,7 @@ elif "Insights" in page:
         bt_df["date"] = pd.to_datetime(bt_df["date"])
 
         fig_bt = go.Figure()
-
-        for mdl, color, label in [
+        for mdl, bt_color, bt_label in [
             ("xgboost", C["blue"],  "XGBoost (21d)"),
             ("tft",     C["green"], "TFT (1d)"),
         ]:
@@ -1069,12 +1023,11 @@ elif "Insights" in page:
             fig_bt.add_trace(go.Scatter(
                 x=sub["date"],
                 y=sub["cumulative_return"] * 100,
-                name=label,
-                line=dict(color=color, width=2),
-                hovertemplate="%{x|%b %Y}<br>Return: %{y:.1f}%<extra>" + label + "</extra>",
+                name=bt_label,
+                line=dict(color=bt_color, width=2),
+                hovertemplate="%{x|%b %Y}<br>Return: %{y:.1f}%<extra>" + bt_label + "</extra>",
             ))
 
-        # SPY benchmark
         sub_spy = bt_df[bt_df["model"] == "xgboost"]
         if not sub_spy.empty:
             fig_bt.add_trace(go.Scatter(
@@ -1085,42 +1038,35 @@ elif "Insights" in page:
                 hovertemplate="%{x|%b %Y}<br>SPY: %{y:.1f}%<extra>Benchmark</extra>",
             ))
 
-        # 2022 bear market shading
         fig_bt.add_vrect(
             x0="2022-01-01", x1="2022-12-31",
-            fillcolor=C["red"], opacity=0.06,
-            layer="below", line_width=0,
-            annotation_text="2022 Bear Market",
-            annotation_position="top left",
+            fillcolor=C["red"], opacity=0.06, layer="below", line_width=0,
+            annotation_text="2022 Bear Market", annotation_position="top left",
             annotation_font=dict(color=C["muted"], size=10),
         )
 
         layout_bt = {**PLOTLY_BASE}
         layout_bt.update(
-            height=400,
-            title=None,
-            xaxis=dict(gridcolor=C["border"], showgrid=False,
-                       tickfont=dict(size=11)),
-            yaxis=dict(gridcolor=C["border"],
-                       title="Cumulative Return %",
+            height=400, title=None,
+            xaxis=dict(gridcolor=C["border"], showgrid=False, tickfont=dict(size=11)),
+            yaxis=dict(gridcolor=C["border"], title="Cumulative Return %",
                        tickfont=dict(size=11)),
         )
         fig_bt.update_layout(**layout_bt)
         st.plotly_chart(fig_bt, use_container_width=True)
 
-        # Backtest summary metrics
         xgb_bt = bt_df[bt_df["model"] == "xgboost"]
         if not xgb_bt.empty:
-            final_ret   = xgb_bt["cumulative_return"].iloc[-1] * 100
-            spy_ret     = xgb_bt["benchmark_return"].iloc[-1] * 100
-            avg_acc     = xgb_bt["daily_accuracy"].mean() * 100
+            final_ret    = xgb_bt["cumulative_return"].iloc[-1] * 100
+            spy_ret      = xgb_bt["benchmark_return"].iloc[-1] * 100
+            avg_acc      = xgb_bt["daily_accuracy"].mean() * 100
             total_trades = xgb_bt["trades_taken"].sum()
 
             m1, m2, m3, m4 = st.columns(4)
-            m1.metric("Strategy Return", f"{final_ret:.1f}%")
-            m2.metric("S&P 500 Return",  f"{spy_ret:.1f}%")
+            m1.metric("Strategy Return",    f"{final_ret:.1f}%")
+            m2.metric("S&P 500 Return",     f"{spy_ret:.1f}%")
             m3.metric("Avg Daily Accuracy", f"{avg_acc:.1f}%")
-            m4.metric("Total Trades", f"{int(total_trades):,}")
+            m4.metric("Total Trades",       f"{int(total_trades):,}")
 
         insight_card(
             "Model accuracy of ~53% on 21-day direction is consistent with "
@@ -1145,7 +1091,6 @@ elif "Explorer" in page:
         st.warning("No tickers available - run the predict pipeline first.")
         st.stop()
 
-    # Stock selector row
     col_sel, col_info, col_pred_xgb, col_pred_tft = st.columns([1, 1, 1, 1])
 
     with col_sel:
@@ -1155,27 +1100,25 @@ elif "Explorer" in page:
             index=tickers_list.index("AAPL") if "AAPL" in tickers_list else 0,
         )
 
-    # Latest price info
     latest_price = run_query(f"""
-      SELECT return_1d, return_21d, sector, date
-      FROM precursor.gold.features
-      WHERE ticker = '{selected_ticker}'
-      ORDER BY date DESC LIMIT 1
+        SELECT return_1d, return_21d, sector, date
+        FROM precursor.gold.features
+        WHERE ticker = '{selected_ticker}'
+        ORDER BY date DESC LIMIT 1
     """)
-  
-    with col_info:
-      if not latest_price.empty:
-          row = latest_price.iloc[0]
-          ret_1d = row['return_1d'] * 100
-          color = C["green"] if ret_1d >= 0 else C["red"]
-          sign = "+" if ret_1d >= 0 else ""
-          st.html(stat_card(
-              f"{sign}{ret_1d:.2f}%",
-              f"{row['sector']} · 1-day return",
-              color=color,
-          ))
 
-    # Predictions for this ticker
+    with col_info:
+        if not latest_price.empty:
+            row    = latest_price.iloc[0]
+            ret_1d = row["return_1d"] * 100
+            r_color = C["green"] if ret_1d >= 0 else C["red"]
+            sign   = "+" if ret_1d >= 0 else ""
+            st.html(stat_card(
+                f"{sign}{ret_1d:.2f}%",
+                f"{row['sector']} - 1-day return",
+                color=r_color,
+            ))
+
     for col, mdl, hrz, lbl in [
         (col_pred_xgb, "xgboost", "21d", "XGBoost 21d"),
         (col_pred_tft, "tft",     "1d",  "TFT 1d"),
@@ -1183,28 +1126,25 @@ elif "Explorer" in page:
         pred_row = run_query(f"""
             SELECT prediction, probability, confidence
             FROM precursor.gold.predictions
-            WHERE ticker   = '{selected_ticker}'
-              AND model    = '{mdl}'
-              AND horizon  = '{hrz}'
-              AND dataset  = 'inference'
+            WHERE ticker  = '{selected_ticker}'
+              AND model   = '{mdl}'
+              AND horizon = '{hrz}'
+              AND dataset = 'inference'
             ORDER BY date DESC LIMIT 1
         """)
         with col:
             if not pred_row.empty:
                 r = pred_row.iloc[0]
-                st.html(
-                    prediction_badge(
-                        int(r["prediction"]),
-                        float(r["probability"]),
-                        lbl,
-                    )
-                )
+                st.html(prediction_badge(
+                    int(r["prediction"]),
+                    float(r["probability"]),
+                    lbl,
+                ))
 
-    st.html("<br>" )
+    st.html("<br>")
 
-    # ── Price chart ───────────────────────────────────────────
     section_header(
-        f"{selected_ticker} - Price & Signals",
+        f"{selected_ticker} - Performance & Signals",
         f"{start_str} to {end_str}"
     )
 
@@ -1214,102 +1154,89 @@ elif "Explorer" in page:
             selected_ticker, model_key, start_str, end_str
         )
 
-    # Strip timezone from both to allow merging
     if not ohlcv.empty:
         ohlcv["date"] = pd.to_datetime(ohlcv["date"]).dt.tz_localize(None)
     if not preds.empty:
         preds["date"] = pd.to_datetime(preds["date"]).dt.tz_localize(None)
 
     if not ohlcv.empty:
-      ohlcv["date"] = pd.to_datetime(ohlcv["date"]).dt.tz_localize(None)
-      ohlcv["cumulative_return"] = (
-          (1 + ohlcv["return_1d"].fillna(0)).cumprod() - 1
-      ) * 100
-  
-      fig_price = make_subplots(
-          rows=2, cols=1,
-          shared_xaxes=True,
-          row_heights=[0.7, 0.3],
-          vertical_spacing=0.04,
-      )
-  
-      # Cumulative return line
-      fig_price.add_trace(go.Scatter(
-          x=ohlcv["date"],
-          y=ohlcv["cumulative_return"],
-          name="Cumulative Return %",
-          line=dict(color=C["blue"], width=2),
-          fill="tozeroy",
-          fillcolor="rgba(0, 212, 255, 0.08)",
-          hovertemplate="%{x|%b %d %Y}<br>Return: %{y:.1f}%<extra></extra>",
-      ), row=1, col=1)
-  
-      # Prediction markers on return chart
-      if not preds.empty:
-          up_preds = preds[preds["prediction"] == 1].merge(
-              ohlcv[["date", "cumulative_return"]], on="date", how="left"
-          )
-          down_preds = preds[preds["prediction"] == 0].merge(
-              ohlcv[["date", "cumulative_return"]], on="date", how="left"
-          )
-  
-          if not up_preds.empty:
-              fig_price.add_trace(go.Scatter(
-                  x=up_preds["date"],
-                  y=up_preds["cumulative_return"],
-                  mode="markers",
-                  marker=dict(symbol="triangle-up", size=8, color=C["green"]),
-                  name="Predicted UP",
-                  hovertemplate="%{x|%b %d}<br>↑ Predicted UP<extra></extra>",
-              ), row=1, col=1)
-  
-          if not down_preds.empty:
-              fig_price.add_trace(go.Scatter(
-                  x=down_preds["date"],
-                  y=down_preds["cumulative_return"],
-                  mode="markers",
-                  marker=dict(symbol="triangle-down", size=8, color=C["red"]),
-                  name="Predicted DOWN",
-                  hovertemplate="%{x|%b %d}<br>↓ Predicted DOWN<extra></extra>",
-              ), row=1, col=1)
-  
-      # Volume zscore instead of raw volume
-      fig_price.add_trace(go.Bar(
-          x=ohlcv["date"],
-          y=ohlcv["volume_zscore_21d"],
-          name="Volume Z-Score",
-          marker=dict(
-              color=[C["green"] if v > 0 else C["red"]
-                     for v in ohlcv["volume_zscore_21d"].fillna(0)],
-              opacity=0.6,
-              line=dict(width=0),
-          ),
-          hovertemplate="%{x|%b %d}<br>Vol Z-Score: %{y:.2f}<extra></extra>",
-      ), row=2, col=1)
-  
-      fig_price.add_hline(
-          y=0, row=1, col=1,
-          line_color=C["muted"], line_width=1, line_dash="dot"
-      )
-  
-      fig_price.update_layout(
-          height=550,
-          paper_bgcolor=C["bg"],
-          plot_bgcolor=C["card"],
-          font=dict(color=C["text"], family="IBM Plex Mono"),
-          margin=dict(t=20, b=40, l=50, r=30),
-          showlegend=True,
-          legend=dict(bgcolor=C["card"], bordercolor=C["border"],
-                      borderwidth=1, font=dict(size=11)),
-          xaxis_rangeslider_visible=False,
-          xaxis2=dict(gridcolor=C["border"], showgrid=False),
-          yaxis=dict(gridcolor=C["border"], title="Cumulative Return %"),
-          yaxis2=dict(gridcolor=C["border"], showgrid=False,
-                      title="Volume Z-Score"),
-      )
-      st.plotly_chart(fig_price, use_container_width=True)
+        ohlcv = ohlcv.sort_values("date").reset_index(drop=True)
+        ohlcv["cumulative_return"] = (
+            (1 + ohlcv["return_1d"].fillna(0)).cumprod() - 1
+        ) * 100
 
-    # ── Technical indicators ──────────────────────────────────
+        fig_price = make_subplots(
+            rows=2, cols=1,
+            shared_xaxes=True,
+            row_heights=[0.7, 0.3],
+            vertical_spacing=0.04,
+        )
+
+        fig_price.add_trace(go.Scatter(
+            x=ohlcv["date"],
+            y=ohlcv["cumulative_return"],
+            name="Cumulative Return %",
+            line=dict(color=C["blue"], width=2),
+            fill="tozeroy",
+            fillcolor="rgba(0, 212, 255, 0.08)",
+            hovertemplate="%{x|%b %d %Y}<br>Return: %{y:.1f}%<extra></extra>",
+        ), row=1, col=1)
+
+        if not preds.empty:
+            up_preds = preds[preds["prediction"] == 1].merge(
+                ohlcv[["date", "cumulative_return"]], on="date", how="left"
+            )
+            down_preds = preds[preds["prediction"] == 0].merge(
+                ohlcv[["date", "cumulative_return"]], on="date", how="left"
+            )
+            if not up_preds.empty:
+                fig_price.add_trace(go.Scatter(
+                    x=up_preds["date"], y=up_preds["cumulative_return"],
+                    mode="markers",
+                    marker=dict(symbol="triangle-up", size=8, color=C["green"]),
+                    name="Predicted UP",
+                    hovertemplate="%{x|%b %d}<br>Predicted UP<extra></extra>",
+                ), row=1, col=1)
+            if not down_preds.empty:
+                fig_price.add_trace(go.Scatter(
+                    x=down_preds["date"], y=down_preds["cumulative_return"],
+                    mode="markers",
+                    marker=dict(symbol="triangle-down", size=8, color=C["red"]),
+                    name="Predicted DOWN",
+                    hovertemplate="%{x|%b %d}<br>Predicted DOWN<extra></extra>",
+                ), row=1, col=1)
+
+        fig_price.add_trace(go.Bar(
+            x=ohlcv["date"],
+            y=ohlcv["volume_zscore_21d"],
+            name="Volume Z-Score",
+            marker=dict(
+                color=[C["green"] if v > 0 else C["red"]
+                       for v in ohlcv["volume_zscore_21d"].fillna(0)],
+                opacity=0.6, line=dict(width=0),
+            ),
+            hovertemplate="%{x|%b %d}<br>Vol Z-Score: %{y:.2f}<extra></extra>",
+        ), row=2, col=1)
+
+        fig_price.add_hline(y=0, row=1, col=1,
+                            line_color=C["muted"], line_width=1, line_dash="dot")
+
+        fig_price.update_layout(
+            height=550,
+            paper_bgcolor=C["bg"], plot_bgcolor=C["card"],
+            font=dict(color=C["text"], family="IBM Plex Mono"),
+            margin=dict(t=20, b=40, l=50, r=30),
+            showlegend=True,
+            legend=dict(bgcolor=C["card"], bordercolor=C["border"],
+                        borderwidth=1, font=dict(size=11)),
+            xaxis_rangeslider_visible=False,
+            xaxis2=dict(gridcolor=C["border"], showgrid=False),
+            yaxis=dict(gridcolor=C["border"], title="Cumulative Return %"),
+            yaxis2=dict(gridcolor=C["border"], showgrid=False,
+                        title="Volume Z-Score"),
+        )
+        st.plotly_chart(fig_price, use_container_width=True)
+
     if not ohlcv.empty:
         col_rsi, col_macd = st.columns(2)
 
@@ -1317,26 +1244,23 @@ elif "Explorer" in page:
             fig_rsi = go.Figure()
             fig_rsi.add_trace(go.Scatter(
                 x=ohlcv["date"], y=ohlcv["rsi_14"],
-                line=dict(color=C["blue"], width=1.5),
-                name="RSI 14",
+                line=dict(color=C["blue"], width=1.5), name="RSI 14",
                 hovertemplate="%{x|%b %d}<br>RSI: %{y:.1f}<extra></extra>",
             ))
-            fig_rsi.add_hline(y=70, line_dash="dash",
-                               line_color=C["red"], line_width=1,
-                               annotation_text="Overbought (70)",
+            fig_rsi.add_hline(y=70, line_dash="dash", line_color=C["red"],
+                               line_width=1, annotation_text="Overbought (70)",
                                annotation_font=dict(color=C["red"], size=10))
-            fig_rsi.add_hline(y=30, line_dash="dash",
-                               line_color=C["green"], line_width=1,
-                               annotation_text="Oversold (30)",
+            fig_rsi.add_hline(y=30, line_dash="dash", line_color=C["green"],
+                               line_width=1, annotation_text="Oversold (30)",
                                annotation_font=dict(color=C["green"], size=10))
-            fig_rsi.add_hrect(y0=70, y1=100,
-                              fillcolor=C["red"], opacity=0.05, layer="below")
-            fig_rsi.add_hrect(y0=0, y1=30,
-                              fillcolor=C["green"], opacity=0.05, layer="below")
+            fig_rsi.add_hrect(y0=70, y1=100, fillcolor=C["red"],
+                              opacity=0.05, layer="below")
+            fig_rsi.add_hrect(y0=0, y1=30, fillcolor=C["green"],
+                              opacity=0.05, layer="below")
             layout_rsi = {**PLOTLY_BASE}
             layout_rsi.update(
-                height=260, title=dict(text="RSI (14-day)",
-                font=dict(size=13), x=0),
+                height=260,
+                title=dict(text="RSI (14-day)", font=dict(size=13), x=0),
                 yaxis=dict(gridcolor=C["border"], range=[0, 100],
                            tickfont=dict(size=10)),
                 xaxis=dict(gridcolor=C["border"], showgrid=False,
@@ -1350,15 +1274,13 @@ elif "Explorer" in page:
             fig_macd = go.Figure()
             fig_macd.add_trace(go.Scatter(
                 x=ohlcv["date"], y=ohlcv["macd"],
-                line=dict(color=C["blue"], width=1.5),
-                name="MACD",
+                line=dict(color=C["blue"], width=1.5), name="MACD",
             ))
-            fig_macd.add_hline(y=0, line_color=C["muted"],
-                                line_width=1)
+            fig_macd.add_hline(y=0, line_color=C["muted"], line_width=1)
             layout_macd = {**PLOTLY_BASE}
             layout_macd.update(
-                height=260, title=dict(text="MACD",
-                font=dict(size=13), x=0),
+                height=260,
+                title=dict(text="MACD", font=dict(size=13), x=0),
                 yaxis=dict(gridcolor=C["border"], tickfont=dict(size=10)),
                 xaxis=dict(gridcolor=C["border"], showgrid=False,
                            tickfont=dict(size=10)),
@@ -1367,42 +1289,44 @@ elif "Explorer" in page:
             fig_macd.update_layout(**layout_macd)
             st.plotly_chart(fig_macd, use_container_width=True)
 
-    # ── Prediction history table ──────────────────────────────
+    # Prediction history - XGBoost only
     if model_key == "xgboost":
-      section_header(
-          f"Prediction History — {selected_ticker}",
-          f"Last 90 {model_key.upper()} predictions"
-      )
-  
-      if not preds.empty:
-          preds_display = preds[[
-              "date", "model", "horizon",
-              "prediction", "probability", "confidence", "correct"
-          ]].copy()
-          preds_display["probability"] = (
-              preds_display["probability"] * 100
-          ).round(1).astype(str) + "%"
-          preds_display["confidence"] = (
-              preds_display["confidence"] * 100
-          ).round(1).astype(str) + "%"
-          preds_display["prediction"] = preds_display["prediction"].map(
-              {1: "↑ UP", 0: "↓ DOWN"}
-          )
-          preds_display["correct"] = preds_display["correct"].map(
-              {1: "✅", 0: "❌", None: "-"}
-          )
-          preds_display.columns = [
-              "Date", "Model", "Horizon",
-              "Direction", "Probability", "Confidence", "Correct?"
-          ]
-          st.dataframe(preds_display, use_container_width=True, hide_index=True)
-  
-          valid = preds[preds["correct"].notna()]
-          if not valid.empty:
-              recent_acc = valid["correct"].mean() * 100
-              st.caption(
-                  f"Recent accuracy ({len(valid)} predictions): {recent_acc:.1f}%"
-              )
+        section_header(
+            f"Prediction History - {selected_ticker}",
+            f"Last 90 XGBoost predictions"
+        )
+
+        if not preds.empty:
+            preds_display = preds[[
+                "date", "model", "horizon",
+                "prediction", "probability", "confidence", "correct"
+            ]].copy()
+            preds_display["probability"] = (
+                preds_display["probability"] * 100
+            ).round(1).astype(str) + "%"
+            preds_display["confidence"] = (
+                preds_display["confidence"] * 100
+            ).round(1).astype(str) + "%"
+            preds_display["prediction"] = preds_display["prediction"].map(
+                {1: "UP", 0: "DOWN"}
+            )
+            preds_display["correct"] = preds_display["correct"].map(
+                {1: "Yes", 0: "No", None: "-"}
+            )
+            preds_display.columns = [
+                "Date", "Model", "Horizon",
+                "Direction", "Probability", "Confidence", "Correct?"
+            ]
+            st.dataframe(preds_display, use_container_width=True, hide_index=True)
+
+            valid = preds[preds["correct"].notna()]
+            if not valid.empty:
+                recent_acc = valid["correct"].mean() * 100
+                st.caption(
+                    f"Recent accuracy ({len(valid)} predictions): {recent_acc:.1f}%"
+                )
+        else:
+            st.info(f"No XGBoost predictions found for {selected_ticker} in this date range.")
 
 
 # ══════════════════════════════════════════════════════════════
@@ -1413,7 +1337,7 @@ elif "Picks" in page:
 
     section_header(
         "Today's Top Picks",
-        f"Highest confidence predictions · {model_key.upper()} · {horizon_key} horizon"
+        f"Highest confidence predictions - {model_key.upper()} - {horizon_key} horizon"
     )
 
     st.html(f"""
@@ -1425,10 +1349,10 @@ elif "Picks" in page:
                 font-size:12px;
                 color:{C['muted']};
                 font-family:IBM Plex Mono;">
-      ⚠️ These are model outputs for research purposes only.
+      These are model outputs for research purposes only.
       Not financial advice. Past performance does not guarantee future results.
     </div>
-    """ )
+    """)
 
     with st.spinner("Loading today's picks..."):
         picks = load_top_picks(model_key, horizon_key)
@@ -1439,54 +1363,41 @@ elif "Picks" in page:
         picks["probability_pct"] = (picks["probability"] * 100).round(1)
         picks["confidence_pct"]  = (picks["confidence"]  * 100).round(1)
 
-        # Hero metrics
         c1, c2, c3, c4 = st.columns(4)
         c1.metric("Stocks Predicting UP", str(len(picks)))
-        c2.metric("Avg Confidence",
-                  f"{picks['confidence_pct'].mean():.1f}%")
-        c3.metric("Avg Probability",
-                  f"{picks['probability_pct'].mean():.1f}%")
-        c4.metric("Model", model_key.upper())
+        c2.metric("Avg Confidence",       f"{picks['confidence_pct'].mean():.1f}%")
+        c3.metric("Avg Probability",      f"{picks['probability_pct'].mean():.1f}%")
+        c4.metric("Model",                model_key.upper())
 
-        st.html("<br>" )
+        st.html("<br>")
 
-        # Confidence bar chart
         fig_picks = go.Figure(go.Bar(
             x=picks["ticker"],
             y=picks["confidence_pct"],
             marker=dict(
                 color=picks["confidence_pct"],
-                colorscale=[[0, "#1a2744"], [0.5, C["blue"]],
-                             [1, C["green"]]],
-                showscale=False,
-                line=dict(width=0),
+                colorscale=[[0, "#1a2744"], [0.5, C["blue"]], [1, C["green"]]],
+                showscale=False, line=dict(width=0),
             ),
             text=picks["probability_pct"].apply(lambda x: f"{x:.0f}%"),
             textposition="outside",
             textfont=dict(size=10, color=C["subtext"]),
-            hovertemplate=(
-                "%{x}<br>"
-                "Confidence: %{y:.1f}%<br>"
-                "<extra></extra>"
-            ),
+            hovertemplate="%{x}<br>Confidence: %{y:.1f}%<extra></extra>",
         ))
         layout_picks = {**PLOTLY_BASE}
         layout_picks.update(
             height=380,
-            title=dict(
-                text="Top Picks by Confidence",
-                font=dict(size=15, color=C["text"]), x=0,
-            ),
+            title=dict(text="Top Picks by Confidence",
+                       font=dict(size=15, color=C["text"]), x=0),
             xaxis=dict(gridcolor=C["border"], showgrid=False,
                        tickfont=dict(size=11)),
-            yaxis=dict(gridcolor=C["border"],
-                       title="Confidence %", tickfont=dict(size=11)),
+            yaxis=dict(gridcolor=C["border"], title="Confidence %",
+                       tickfont=dict(size=11)),
             showlegend=False,
         )
         fig_picks.update_layout(**layout_picks)
         st.plotly_chart(fig_picks, use_container_width=True)
 
-        # Full table
         section_header("Full Rankings")
         display_picks = picks[[
             "ticker", "sector", "probability_pct",
@@ -1500,5 +1411,4 @@ elif "Picks" in page:
             display_picks["vs 52W High"] * 100
         ).round(1).astype(str) + "%"
         display_picks["RSI (14)"] = display_picks["RSI (14)"].round(1)
-        st.dataframe(display_picks, use_container_width=True,
-                     hide_index=True)
+        st.dataframe(display_picks, use_container_width=True, hide_index=True)

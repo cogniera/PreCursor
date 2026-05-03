@@ -1156,20 +1156,23 @@ elif "Explorer" in page:
 
     # Latest price info
     latest_price = run_query(f"""
-        SELECT close, sector, date
-        FROM precursor.silver.joined
-        WHERE ticker = '{selected_ticker}'
-        ORDER BY date DESC LIMIT 1
+      SELECT return_1d, return_21d, sector, date
+      FROM precursor.gold.features
+      WHERE ticker = '{selected_ticker}'
+      ORDER BY date DESC LIMIT 1
     """)
-
+  
     with col_info:
-        if not latest_price.empty:
-            row = latest_price.iloc[0]
-            st.html(stat_card(
-                f"${row['close']:.2f}",
-                f"{row['sector']} · {row['date']}",
-                color=C["text"],
-            ) )
+      if not latest_price.empty:
+          row = latest_price.iloc[0]
+          ret_1d = row['return_1d'] * 100
+          color = C["green"] if ret_1d >= 0 else C["red"]
+          sign = "+" if ret_1d >= 0 else ""
+          st.html(stat_card(
+              f"{sign}{ret_1d:.2f}%",
+              f"{row['sector']} · 1-day return",
+              color=color,
+          ))
 
     # Predictions for this ticker
     for col, mdl, hrz, lbl in [
